@@ -19,11 +19,6 @@ export class SidebarComponent {
             label: 'Dashboard',
         },
         // {
-        //     routeLink: 'products',
-        //     icon: 'fal fa-box-open',
-        //     label: 'Products',
-        // },
-        // {
         //     routeLink: 'pages',
         //     icon: 'fal fa-file',
         //     label: 'Pages',
@@ -32,6 +27,11 @@ export class SidebarComponent {
             routeLink: 'settings',
             icon: 'fal fa-cog',
             label: 'Settings',
+        },
+        {
+            routeLink: 'accounts',
+            icon: 'fal fa-box-open',
+            label: 'Accounts',
         },
     ];
 

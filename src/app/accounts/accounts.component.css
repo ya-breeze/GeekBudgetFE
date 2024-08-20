@@ -1,0 +1,19 @@
+.account-type {
+    border: 1px solid black;
+    border-radius: 30px;
+    margin: 0.5rem;
+}
+
+.account-type:hover {
+    background-color: #f0f0f0;
+}
+
+.account-type i {
+    font-size: 3rem;
+    margin-top: 1rem;
+}
+
+.account-type div {
+    /* font-size: 1.5rem; */
+    padding: 0.4rem;
+}

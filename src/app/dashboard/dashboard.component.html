@@ -1,1 +1,28 @@
 <h2>Dashboard</h2>
+<div class="row">
+    @if (user$ | async; as user) {
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="my-0">
+                    Welcome back, <strong>{{ user.email }}</strong>
+                </h5>
+            </div>
+            <div class="card-body">
+                You are with us since {{ user.startDate | date : "longDate" }}.
+            </div>
+        </div>
+    </div>
+    } @else {
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="my-0">Welcome, Guest</h4>
+            </div>
+            <div class="card-body">
+                <p>Please <a routerLink="/login">login</a> to see your data.</p>
+            </div>
+        </div>
+    </div>
+    }
+</div>

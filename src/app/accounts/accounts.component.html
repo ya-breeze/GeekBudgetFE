@@ -1,0 +1,76 @@
+<h2>Accounts</h2>
+
+<div
+    class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 py-5 d-flex align-items-center"
+>
+    <button
+        class="col d-flex align-items-start account-type btn btn-primary-outline"
+        (click)="showAssets()"
+    >
+        <i class="bi-bank"></i>
+        <div>
+            <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Assets</h3>
+            <p>
+                Assets stores your money. It could be a bank account or your
+                cash.
+            </p>
+        </div>
+    </button>
+    <button
+        class="col d-flex align-items-start account-type btn btn-primary-outline"
+        (click)="showIncomes()"
+    >
+        <i class="bi-graph-up-arrow"></i>
+        <div>
+            <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Incomes</h3>
+            <p>
+                Incomes are the money you earn. It could be your salary,
+                dividends or gifts.
+            </p>
+        </div>
+    </button>
+    <button
+        class="col d-flex align-items-start account-type btn btn-primary-outline"
+        (click)="showExpenses()"
+    >
+        <i class="bi-graph-down-arrow"></i>
+        <div>
+            <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Expenses</h3>
+            <p>
+                Expenses are the money you spend. It could be your rent, food or
+                bills.
+            </p>
+        </div>
+    </button>
+</div>
+
+<h2>Type: {{ type }}</h2>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">First</th>
+            <th scope="col">Last</th>
+            <th scope="col">Handle</th>
+        </tr>
+    </thead>
+    <tbody class="table-group-divider">
+        <tr>
+            <th scope="row">1</th>
+            <td>Mark</td>
+            <td>Otto</td>
+            <td>mdo</td>
+        </tr>
+        <tr>
+            <th scope="row">2</th>
+            <td>Jacob</td>
+            <td>Thornton</td>
+            <td>fat</td>
+        </tr>
+        <tr>
+            <th scope="row">3</th>
+            <td colspan="2">Larry the Bird</td>
+            <td>twitter</td>
+        </tr>
+    </tbody>
+</table>
