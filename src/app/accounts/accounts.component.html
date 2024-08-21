@@ -11,7 +11,7 @@
         <div>
             <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Assets</h3>
             <p>
-                Assets stores your money. It could be a bank account or your
+                Assets store your money. It could be a bank account or your
                 cash.
             </p>
         </div>
@@ -24,8 +24,8 @@
         <div>
             <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Incomes</h3>
             <p>
-                Incomes are the money you earn. It could be your salary,
-                dividends or gifts.
+                Incomes are the sources of money you earn. It could be your
+                salary, dividends or gifts.
             </p>
         </div>
     </button>
@@ -37,40 +37,63 @@
         <div>
             <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Expenses</h3>
             <p>
-                Expenses are the money you spend. It could be your rent, food or
-                bills.
+                Expenses define where the money are spent. It could be rent,
+                food or bills.
             </p>
         </div>
     </button>
 </div>
 
-<h2>Type: {{ type }}</h2>
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">First</th>
-            <th scope="col">Last</th>
-            <th scope="col">Handle</th>
-        </tr>
-    </thead>
-    <tbody class="table-group-divider">
-        <tr>
-            <th scope="row">1</th>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>mdo</td>
-        </tr>
-        <tr>
-            <th scope="row">2</th>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>fat</td>
-        </tr>
-        <tr>
-            <th scope="row">3</th>
-            <td colspan="2">Larry the Bird</td>
-            <td>twitter</td>
-        </tr>
-    </tbody>
-</table>
+<div style="margin: 1rem; width: 100%">
+    <p-treeTable
+        [value]="selectedAccounts"
+        [scrollable]="true"
+        [tableStyle]="{ 'min-width': '30rem' }"
+        selectionMode="single"
+    >
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+            <tr [ttRow]="rowNode">
+                <td>
+                    <p-treeTableToggler
+                        [rowNode]="rowNode"
+                    ></p-treeTableToggler>
+                    @if (rowNode.parent) {
+                    <span>{{ rowData.name }}</span>
+                    }@else {
+                    <strong>{{ rowData.name }}</strong>
+                    }
+                </td>
+                <td style="width: 50%">{{ rowData.description }}</td>
+                <td>
+                    <!-- {{ toString(rowNode) }} -->
+                    <div style="display: flex">
+                        @if (rowNode.parent) { } @else {
+                        <button (click)="deleteAccount(rowData.id)" class="btn">
+                            <i
+                                class="bi-plus-circle-fill see-account-transactions"
+                            ></i>
+                        </button>
+                        }
+                        <button (click)="deleteAccount(rowData.id)" class="btn">
+                            <i class="bi-book see-account-transactions"></i>
+                        </button>
+                        <button
+                            (click)="deleteAccount(rowData.id)"
+                            class="btn"
+                            style="margin-left: auto"
+                        >
+                            <i class="bi-x-circle delete-account"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-treeTable>
+</div>
