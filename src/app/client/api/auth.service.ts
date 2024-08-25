@@ -12,15 +12,7 @@
 /* tslint:disable:no-unused-variable member-ordering */
 
 import { Inject, Injectable, Optional } from '@angular/core';
-import {
-    HttpClient,
-    HttpHeaders,
-    HttpParams,
-    HttpResponse,
-    HttpEvent,
-    HttpParameterCodec,
-    HttpContext,
-} from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse, HttpEvent, HttpParameterCodec, HttpContext } from '@angular/common/http';
 import { CustomHttpParameterCodec } from '../encoder';
 import { Observable } from 'rxjs';
 
@@ -51,9 +43,7 @@ export class AuthService {
             this.configuration = configuration;
         }
         if (typeof this.configuration.basePath !== 'string') {
-            const firstBasePath = Array.isArray(basePath)
-                ? basePath[0]
-                : undefined;
+            const firstBasePath = Array.isArray(basePath) ? basePath[0] : undefined;
             if (firstBasePath != undefined) {
                 basePath = firstBasePath;
             }
@@ -63,16 +53,11 @@ export class AuthService {
             }
             this.configuration.basePath = basePath;
         }
-        this.encoder =
-            this.configuration.encoder || new CustomHttpParameterCodec();
+        this.encoder = this.configuration.encoder || new CustomHttpParameterCodec();
     }
 
     // @ts-ignore
-    private addToHttpParams(
-        httpParams: HttpParams,
-        value: any,
-        key?: string
-    ): HttpParams {
+    private addToHttpParams(httpParams: HttpParams, value: any, key?: string): HttpParams {
         if (typeof value === 'object' && value instanceof Date === false) {
             httpParams = this.addToHttpParamsRecursive(httpParams, value);
         } else {
@@ -81,42 +66,23 @@ export class AuthService {
         return httpParams;
     }
 
-    private addToHttpParamsRecursive(
-        httpParams: HttpParams,
-        value?: any,
-        key?: string
-    ): HttpParams {
+    private addToHttpParamsRecursive(httpParams: HttpParams, value?: any, key?: string): HttpParams {
         if (value == null) {
             return httpParams;
         }
 
         if (typeof value === 'object') {
             if (Array.isArray(value)) {
-                (value as any[]).forEach(
-                    (elem) =>
-                        (httpParams = this.addToHttpParamsRecursive(
-                            httpParams,
-                            elem,
-                            key
-                        ))
-                );
+                (value as any[]).forEach((elem) => (httpParams = this.addToHttpParamsRecursive(httpParams, elem, key)));
             } else if (value instanceof Date) {
                 if (key != null) {
-                    httpParams = httpParams.append(
-                        key,
-                        (value as Date).toISOString().substring(0, 10)
-                    );
+                    httpParams = httpParams.append(key, (value as Date).toISOString().substring(0, 10));
                 } else {
                     throw Error('key may not be null if value is Date');
                 }
             } else {
                 Object.keys(value).forEach(
-                    (k) =>
-                        (httpParams = this.addToHttpParamsRecursive(
-                            httpParams,
-                            value[k],
-                            key != null ? `${key}.${k}` : k
-                        ))
+                    (k) => (httpParams = this.addToHttpParamsRecursive(httpParams, value[k], key != null ? `${key}.${k}` : k))
                 );
             }
         } else if (key != null) {
@@ -174,58 +140,43 @@ export class AuthService {
         }
     ): Observable<any> {
         if (authData === null || authData === undefined) {
-            throw new Error(
-                'Required parameter authData was null or undefined when calling authorize.'
-            );
+            throw new Error('Required parameter authData was null or undefined when calling authorize.');
         }
 
         let localVarHeaders = this.defaultHeaders;
 
-        let localVarHttpHeaderAcceptSelected: string | undefined =
-            options && options.httpHeaderAccept;
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
         if (localVarHttpHeaderAcceptSelected === undefined) {
             // to determine the Accept header
             const httpHeaderAccepts: string[] = ['application/json'];
-            localVarHttpHeaderAcceptSelected =
-                this.configuration.selectHeaderAccept(httpHeaderAccepts);
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
         if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set(
-                'Accept',
-                localVarHttpHeaderAcceptSelected
-            );
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
         }
 
-        let localVarHttpContext: HttpContext | undefined =
-            options && options.context;
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
         if (localVarHttpContext === undefined) {
             localVarHttpContext = new HttpContext();
         }
 
-        let localVarTransferCache: boolean | undefined =
-            options && options.transferCache;
+        let localVarTransferCache: boolean | undefined = options && options.transferCache;
         if (localVarTransferCache === undefined) {
             localVarTransferCache = true;
         }
 
         // to determine the Content-Type header
         const consumes: string[] = ['application/json'];
-        const httpContentTypeSelected: string | undefined =
-            this.configuration.selectHeaderContentType(consumes);
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
         if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set(
-                'Content-Type',
-                httpContentTypeSelected
-            );
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
         }
 
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
                 responseType_ = 'text';
-            } else if (
-                this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
-            ) {
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
                 responseType_ = 'json';
             } else {
                 responseType_ = 'blob';
@@ -233,23 +184,15 @@ export class AuthService {
         }
 
         const localVarPath = `/v1/authorize`;
-        console.log(
-            '============================= localVarPath',
-            `${this.configuration.basePath}${localVarPath}`
-        );
-        return this.httpClient.request<Authorize200Response>(
-            'post',
-            `${this.configuration.basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                body: authData,
-                responseType: <any>responseType_,
-                withCredentials: this.configuration.withCredentials,
-                headers: localVarHeaders,
-                observe: observe,
-                transferCache: localVarTransferCache,
-                reportProgress: reportProgress,
-            }
-        );
+        return this.httpClient.request<Authorize200Response>('post', `${this.configuration.basePath}${localVarPath}`, {
+            context: localVarHttpContext,
+            body: authData,
+            responseType: <any>responseType_,
+            withCredentials: this.configuration.withCredentials,
+            headers: localVarHeaders,
+            observe: observe,
+            transferCache: localVarTransferCache,
+            reportProgress: reportProgress,
+        });
     }
 }

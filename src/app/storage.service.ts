@@ -1,5 +1,5 @@
 import { firstValueFrom } from 'rxjs';
-import { AuthService, UserService, AccountsService, CurrenciesService, Account, User, Currency } from './client';
+import { AuthService, UserService, AccountsService, CurrenciesService, Account, User, Currency, AccountNoID } from './client';
 import { Injectable } from '@angular/core';
 import { FullUserInfo } from './models/fullUserInfo';
 
@@ -21,6 +21,10 @@ export class StorageService {
     ) {}
 
     async fetchToken(): Promise<string> {
+        if (this.token) {
+            return this.token;
+        }
+
         this.token = (
             await firstValueFrom(
                 this.authService.authorize({
@@ -60,19 +64,6 @@ export class StorageService {
         return this.userPromise;
     }
 
-    async getAccounts(): Promise<Account[]> {
-        if (this.accountsPromise) {
-            return this.accountsPromise;
-        }
-
-        const token = await this.fetchToken();
-
-        this.accountsService.configuration.credentials['BearerAuth'] = token;
-        this.accountsPromise = firstValueFrom(this.accountsService.getAccounts());
-
-        return this.accountsPromise;
-    }
-
     async getCurrencies(): Promise<Currency[]> {
         if (this.currenciesPromise) {
             return this.currenciesPromise;
@@ -85,4 +76,44 @@ export class StorageService {
 
         return this.currenciesPromise;
     }
+
+    //#region Accounts
+    async getAccounts(): Promise<Account[]> {
+        console.log('enter getAccounts()');
+        if (this.accountsPromise) {
+            console.log('returning cached accounts');
+            return this.accountsPromise;
+        }
+
+        const token = await this.fetchToken();
+
+        this.accountsService.configuration.credentials['BearerAuth'] = token;
+        this.accountsPromise = firstValueFrom(this.accountsService.getAccounts());
+
+        console.log('returning fetched accounts');
+        return this.accountsPromise;
+    }
+
+    async deleteAccount(accountID: string) {
+        const token = await this.fetchToken();
+        this.accountsService.configuration.credentials['BearerAuth'] = token;
+        await firstValueFrom(this.accountsService.deleteAccount(accountID));
+
+        let accounts = await this.getAccounts();
+        accounts = accounts.filter((acc) => acc.id !== accountID);
+        this.accountsPromise = Promise.resolve(accounts);
+    }
+
+    async addAccount(acc: AccountNoID): Promise<Account> {
+        const token = await this.fetchToken();
+        this.accountsService.configuration.credentials['BearerAuth'] = token;
+        const res = await firstValueFrom(this.accountsService.createAccount(acc));
+
+        const accounts = await this.getAccounts();
+        accounts.push(res);
+        this.accountsPromise = Promise.resolve(accounts);
+
+        return res;
+    }
+    //#endregion Accounts
 }

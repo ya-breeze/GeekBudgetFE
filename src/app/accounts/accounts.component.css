@@ -14,30 +14,29 @@
 }
 
 .account-type div {
-    /* font-size: 1.5rem; */
     padding: 0.4rem;
 }
 
 .delete-account {
     color: gray;
     cursor: pointer;
-    font-size: 2rem;
 }
 
 .delete-account:hover {
     color: red;
     cursor: pointer;
-    font-size: 2rem;
 }
 
 .see-account-transactions {
     color: gray;
     cursor: pointer;
-    font-size: 2rem;
 }
 
 .see-account-transactions:hover {
     color: rgb(68, 95, 245);
     cursor: pointer;
+}
+
+.icon {
     font-size: 2rem;
 }

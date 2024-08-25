@@ -1,0 +1,25 @@
+<!-- <h3>Edit account</h3> -->
+@if (account ) {
+<form>
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" [(ngModel)]="account.name" name="name" required />
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <input type="text" class="form-control" id="description" [(ngModel)]="account.description" name="description" required />
+    </div>
+    @if (showType) {
+    <div class="mb-3">
+        <label for="type" class="form-label">Type</label>
+        <select class="form-select" id="type" [(ngModel)]="account.type" name="type" required>
+            <option value="asset">Asset</option>
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+        </select>
+    </div>
+    } @if (showSave) {
+    <button type="submit" class="btn btn-primary">Save</button>
+    }
+</form>
+} @else { Loading... }

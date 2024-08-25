@@ -1,21 +1,22 @@
 <h2>Accounts</h2>
 
+@if (selectedAccounts$ | async; as selectedAccounts) {
 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 py-5 d-flex align-items-center">
-    <button class="col d-flex align-items-start account-type btn btn-primary-outline" (click)="showAssets()">
+    <button class="col d-flex align-items-start account-type btn btn-primary-outline" (click)="selectType(TypeEnum.Asset)">
         <i class="bi-bank"></i>
         <div>
             <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Assets</h3>
-            <p>Assets store your money. It could be a bank account, investment account or your cash.</p>
+            <p>Assets store your money. It could be a bank account or cash.</p>
         </div>
     </button>
-    <button class="col d-flex align-items-start account-type btn btn-primary-outline" (click)="showIncomes()">
+    <button class="col d-flex align-items-start account-type btn btn-primary-outline" (click)="selectType(TypeEnum.Income)">
         <i class="bi-graph-up-arrow"></i>
         <div>
             <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Incomes</h3>
             <p>Incomes are the sources of money you earn. It could be your salary, dividends or gifts.</p>
         </div>
     </button>
-    <button class="col d-flex align-items-start account-type btn btn-primary-outline" (click)="showExpenses()">
+    <button class="col d-flex align-items-start account-type btn btn-primary-outline" (click)="selectType(TypeEnum.Expense)">
         <i class="bi-graph-down-arrow"></i>
         <div>
             <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Expenses</h3>
@@ -25,19 +26,26 @@
 </div>
 
 <div style="margin: 1rem; width: 100%">
-    <p-treeTable [value]="selectedAccounts" [scrollable]="true" [tableStyle]="{ 'min-width': '30rem' }" selectionMode="single">
+    <p-treeTable
+        id="accounts"
+        [value]="selectedAccounts"
+        [scrollable]="true"
+        [tableStyle]="{ 'min-width': '30rem' }"
+        selectionMode="single"
+        (onNodeSelect)="nodeSelect($event)"
+    >
         <ng-template pTemplate="header" let-columns>
             <tr>
                 <th>Name</th>
                 <th style="width: 50%">Description</th>
                 <th>
                     <div style="display: flex">
-                        <button (click)="addAccount('')" class="btn" data-toggle="tooltip" title="Add account">
+                        <button (click)="addAccount('')" class="btn icon" data-toggle="tooltip" title="Add account">
                             <i class="bi-plus-circle see-account-transactions"></i>
                         </button>
                         <button
-                            (click)="addAccount('')"
-                            class="btn"
+                            (click)="addAccountGroup()"
+                            class="btn icon"
                             data-toggle="tooltip"
                             title="Add account group"
                             style="margin-left: auto"
@@ -49,8 +57,8 @@
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
-            <tr [ttRow]="rowNode">
-                <td>
+            <tr [ttRow]="rowNode" [ttSelectableRow]="rowNode">
+                <td [attr.data-bs-toggle]="rowNode.parent ? 'modal' : null" [attr.data-bs-target]="rowNode.parent ? '#exampleModal' : null">
                     <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
                     @if (rowNode.parent) {
                     <span>{{ rowData.name }}</span>
@@ -58,23 +66,33 @@
                     <strong>{{ rowData.name }}</strong>
                     }
                 </td>
-                <td style="width: 50%">{{ rowData.description }}</td>
+                <td
+                    [attr.data-bs-toggle]="rowNode.parent ? 'modal' : null"
+                    [attr.data-bs-target]="rowNode.parent ? '#exampleModal' : null"
+                    style="width: 50%"
+                >
+                    {{ rowData.description }}
+                </td>
                 <td>
-                    <!-- {{ toString(rowNode) }} -->
                     <div style="display: flex">
                         @if (rowNode.parent) {
-                        <span style="padding-left: 3.7rem"></span>
+                        <span class="icon" style="min-width: 3.7rem"></span>
                         } @else {
-                        <button (click)="addAccount(rowData.id)" class="btn" data-toggle="tooltip" title="Add account">
+                        <button (click)="addAccount(rowData.id)" class="btn icon" data-toggle="tooltip" title="Add account">
                             <i class="bi-plus-circle see-account-transactions"></i>
                         </button>
                         }
-                        <button (click)="seeAccountTransactions(rowData.id)" class="btn" data-toggle="tooltip" title="See transactions">
+                        <button
+                            (click)="seeAccountTransactions(rowData.id)"
+                            class="btn icon"
+                            data-toggle="tooltip"
+                            title="See transactions"
+                        >
                             <i class="bi-book see-account-transactions"></i>
                         </button>
                         <button
                             (click)="deleteAccount(rowData.id)"
-                            class="btn"
+                            class="btn icon"
                             data-toggle="tooltip"
                             title="Delete account"
                             style="margin-left: auto"
@@ -87,3 +105,29 @@
         </ng-template>
     </p-treeTable>
 </div>
+
+<div
+    class="modal modal-lg modal-dialog-scrollable fade"
+    id="exampleModal"
+    tabindex="-1"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Account</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <app-account [account]="selected" [showType]="false" [showSave]="false"></app-account>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+} @else { Loading... }
