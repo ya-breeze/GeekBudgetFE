@@ -1,69 +1,57 @@
 <h2>Accounts</h2>
 
-<div
-    class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 py-5 d-flex align-items-center"
->
-    <button
-        class="col d-flex align-items-start account-type btn btn-primary-outline"
-        (click)="showAssets()"
-    >
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 py-5 d-flex align-items-center">
+    <button class="col d-flex align-items-start account-type btn btn-primary-outline" (click)="showAssets()">
         <i class="bi-bank"></i>
         <div>
             <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Assets</h3>
-            <p>
-                Assets store your money. It could be a bank account or your
-                cash.
-            </p>
+            <p>Assets store your money. It could be a bank account, investment account or your cash.</p>
         </div>
     </button>
-    <button
-        class="col d-flex align-items-start account-type btn btn-primary-outline"
-        (click)="showIncomes()"
-    >
+    <button class="col d-flex align-items-start account-type btn btn-primary-outline" (click)="showIncomes()">
         <i class="bi-graph-up-arrow"></i>
         <div>
             <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Incomes</h3>
-            <p>
-                Incomes are the sources of money you earn. It could be your
-                salary, dividends or gifts.
-            </p>
+            <p>Incomes are the sources of money you earn. It could be your salary, dividends or gifts.</p>
         </div>
     </button>
-    <button
-        class="col d-flex align-items-start account-type btn btn-primary-outline"
-        (click)="showExpenses()"
-    >
+    <button class="col d-flex align-items-start account-type btn btn-primary-outline" (click)="showExpenses()">
         <i class="bi-graph-down-arrow"></i>
         <div>
             <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">Expenses</h3>
-            <p>
-                Expenses define where the money are spent. It could be rent,
-                food or bills.
-            </p>
+            <p>Expenses define where the money are spent. It could be rent, food or bills.</p>
         </div>
     </button>
 </div>
 
 <div style="margin: 1rem; width: 100%">
-    <p-treeTable
-        [value]="selectedAccounts"
-        [scrollable]="true"
-        [tableStyle]="{ 'min-width': '30rem' }"
-        selectionMode="single"
-    >
+    <p-treeTable [value]="selectedAccounts" [scrollable]="true" [tableStyle]="{ 'min-width': '30rem' }" selectionMode="single">
         <ng-template pTemplate="header" let-columns>
             <tr>
                 <th>Name</th>
-                <th>Description</th>
-                <th></th>
+                <th style="width: 50%">Description</th>
+                <th>
+                    <div style="display: flex">
+                        <button (click)="addAccount('')" class="btn" data-toggle="tooltip" title="Add account">
+                            <i class="bi-plus-circle see-account-transactions"></i>
+                        </button>
+                        <button
+                            (click)="addAccount('')"
+                            class="btn"
+                            data-toggle="tooltip"
+                            title="Add account group"
+                            style="margin-left: auto"
+                        >
+                            <i class="bi-plus-circle-fill see-account-transactions"></i>
+                        </button>
+                    </div>
+                </th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
             <tr [ttRow]="rowNode">
                 <td>
-                    <p-treeTableToggler
-                        [rowNode]="rowNode"
-                    ></p-treeTableToggler>
+                    <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
                     @if (rowNode.parent) {
                     <span>{{ rowData.name }}</span>
                     }@else {
@@ -74,19 +62,21 @@
                 <td>
                     <!-- {{ toString(rowNode) }} -->
                     <div style="display: flex">
-                        @if (rowNode.parent) { } @else {
-                        <button (click)="deleteAccount(rowData.id)" class="btn">
-                            <i
-                                class="bi-plus-circle-fill see-account-transactions"
-                            ></i>
+                        @if (rowNode.parent) {
+                        <span style="padding-left: 3.7rem"></span>
+                        } @else {
+                        <button (click)="addAccount(rowData.id)" class="btn" data-toggle="tooltip" title="Add account">
+                            <i class="bi-plus-circle see-account-transactions"></i>
                         </button>
                         }
-                        <button (click)="deleteAccount(rowData.id)" class="btn">
+                        <button (click)="seeAccountTransactions(rowData.id)" class="btn" data-toggle="tooltip" title="See transactions">
                             <i class="bi-book see-account-transactions"></i>
                         </button>
                         <button
                             (click)="deleteAccount(rowData.id)"
                             class="btn"
+                            data-toggle="tooltip"
+                            title="Delete account"
                             style="margin-left: auto"
                         >
                             <i class="bi-x-circle delete-account"></i>

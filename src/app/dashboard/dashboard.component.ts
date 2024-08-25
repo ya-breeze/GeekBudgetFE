@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService, User, UserService } from '../client';
+import { AuthService, User } from '../client';
 import { AsyncPipe, DatePipe } from '@angular/common';
-import { Observable } from 'rxjs';
+import { StorageService } from '../storage.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -12,25 +12,11 @@ import { Observable } from 'rxjs';
     styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
-    user$: Observable<User> | undefined;
+    user: User | undefined;
 
-    constructor(
-        protected authService: AuthService,
-        protected userService: UserService
-    ) {}
+    constructor(private storage: StorageService) {}
 
-    ngOnInit() {
-        // const members = getMembers().pipe(publishReplay(1), refCount())
-
-        console.log('DashboardComponent initialized');
-        this.authService
-            .authorize({ email: 'test', password: 'test' })
-            .subscribe((response) => {
-                console.log('Authorization response:', response);
-                this.userService.configuration.credentials['BearerAuth'] =
-                    response.token;
-
-                this.user$ = this.userService.getUser();
-            });
+    async ngOnInit() {
+        this.user = await this.storage.getUser();
     }
 }

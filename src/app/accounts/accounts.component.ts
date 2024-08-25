@@ -4,6 +4,7 @@ import { TreeTableModule } from 'primeng/treetable';
 import { ButtonModule } from 'primeng/button';
 import { TreeNode } from 'primeng/api';
 import { Account } from '../client/model/account';
+import { StorageService } from '../storage.service';
 
 @Component({
     selector: 'app-accounts',
@@ -56,31 +57,38 @@ export class AccountsComponent implements OnInit {
             type: Account.TypeEnum.Expense,
         },
     ];
+    accounts: Account[] | undefined;
 
-    constructor(private route: ActivatedRoute, private router: Router) {}
+    constructor(private route: ActivatedRoute, private router: Router, private storage: StorageService) {}
 
-    ngOnInit() {
+    async ngOnInit() {
+        await this.storage.getAccounts().then((accounts) => {
+            this.accounts = accounts;
+        });
+
         this.route.paramMap.subscribe((params) => {
             this.type = params.get('type') ?? this.defaultType;
-            this.selectedAccounts =
-                this.type !== Account.TypeEnum.Expense
-                    ? [
-                          {
-                              data: {
-                                  name: 'Ungrouped',
-                              },
-                              children: [
-                                  {
-                                      data: {
-                                          description:
-                                              'No accounts yet. Click "plus" on line above add one.',
-                                      },
-                                  },
-                              ],
-                              expanded: true,
-                          },
-                      ]
-                    : this.convertToTreeNode(this.expenses);
+
+            const ungrouped: TreeNode<Account> = {
+                data: {
+                    id: 'unknown',
+                    name: 'Ungrouped',
+                    type: Account.TypeEnum.Expense,
+                },
+                children: [],
+                expanded: true,
+            };
+
+            for (const acc of this.accounts ?? []) {
+                if (acc.type === this.type) {
+                    ungrouped.children?.push({
+                        data: acc,
+                        children: [],
+                    });
+                }
+            }
+
+            this.selectedAccounts = [ungrouped];
         });
     }
 
@@ -125,15 +133,13 @@ export class AccountsComponent implements OnInit {
             children: [],
             expanded: true,
         };
-        const otherAccs: TreeNode<Account>[] = this.otherExpenses.map(
-            (account) => {
-                return {
-                    parent: ungrouped,
-                    data: account,
-                    children: [],
-                };
-            }
-        );
+        const otherAccs: TreeNode<Account>[] = this.otherExpenses.map((account) => {
+            return {
+                parent: ungrouped,
+                data: account,
+                children: [],
+            };
+        });
         ungrouped.children = otherAccs;
 
         const result: TreeNode<Account>[] = [parent, ungrouped];
@@ -143,6 +149,12 @@ export class AccountsComponent implements OnInit {
 
     deleteAccount(accID: string) {
         console.log('deleteAccount', accID);
+    }
+    addAccount(arg0: any) {
+        throw new Error('Method not implemented.');
+    }
+    seeAccountTransactions(arg0: any) {
+        throw new Error('Method not implemented.');
     }
 
     toString(o: object) {
