@@ -1,20 +1,20 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TreeTable, TreeTableModule } from 'primeng/treetable';
+import { TreeTableModule } from 'primeng/treetable';
 import { ButtonModule } from 'primeng/button';
-import { TreeNode } from 'primeng/api';
+import { TreeNode, TreeTableNode } from 'primeng/api';
 import { Account } from '../client/model/account';
 import { StorageService } from '../storage.service';
 import { AccountComponent } from '../account/account.component';
 import { Subject } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { copyObject } from '../utils/utils';
-import { AccountNoID } from '../client';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
     selector: 'app-accounts',
     standalone: true,
-    imports: [TreeTableModule, ButtonModule, AsyncPipe, AccountComponent],
+    imports: [TreeTableModule, ButtonModule, AsyncPipe, AccountComponent, DialogModule],
     templateUrl: './accounts.component.html',
     styleUrl: './accounts.component.css',
 })
@@ -26,9 +26,9 @@ export class AccountsComponent implements OnInit {
     type: Account.TypeEnum = this.defaultType;
     accounts: Account[] | undefined;
     selected: Account | undefined;
+    modalVisible = false;
 
     selectedAccounts$ = new Subject<TreeNode<Account>[]>();
-    @ViewChild('accounts') table: TreeTable | undefined;
 
     constructor(private route: ActivatedRoute, private router: Router, private storage: StorageService) {}
 
@@ -39,7 +39,8 @@ export class AccountsComponent implements OnInit {
 
         this.route.paramMap.subscribe((params) => {
             this.type = (params.get('type') as Account.TypeEnum) ?? this.defaultType;
-            this.selected = params.get('id') ? this.accounts?.find((acc) => acc.id === params.get('id')) : undefined;
+            // We change URL when user clicks, so don't update selected here to avoid issues
+            // this.selected = params.get('id') ? this.accounts?.find((acc) => acc.id === params.get('id')) : undefined;
             this.updateSelectedAccounts();
         });
     }
@@ -76,56 +77,80 @@ export class AccountsComponent implements OnInit {
         console.log('deleteAccount', accID);
         try {
             await this.storage.deleteAccount(accID);
-            this.accounts = await this.storage.getAccounts();
-            this.updateSelectedAccounts();
+            await this.updateSelectedAccounts();
             console.log('Account deleted');
         } catch (e) {
             console.error(e);
         }
     }
 
-    updateSelectedAccounts() {
+    async updateSelectedAccounts() {
+        this.accounts = await this.storage.getAccounts();
         this.selectedAccounts$.next(this.convertToTreeNode());
     }
 
     async addAccount(accID: string) {
-        console.log('addAccount', accID);
+        if (this.modalVisible) {
+            console.log('ignore addAccount');
+            return;
+        }
+
+        console.log('addAccount for parent', accID);
         this.router.navigate(['/accounts', { type: this.type }]);
 
-        const acc: AccountNoID = {
+        const acc: Account = {
+            id: '',
             name: 'New Account',
             type: this.type,
             description: '',
         };
+        this.selected = acc;
+        this.modalVisible = true;
 
-        const created = await this.storage.addAccount(acc);
-        console.log('Account created', created);
-        this.updateSelectedAccounts();
-        const v = (await this.selectedAccounts$.toPromise()) ?? [{ data: undefined, children: [] }];
-        // const s = v[0].children?.find((node: TreeNode<Account>) => node.data?.id === created.id);
-        this.table?.scrollToVirtualIndex(v[0].children?.length ?? 0);
+        // TODO Scroll to the new account
+        // const v = (await this.selectedAccounts$.toPromise()) ?? [{ data: undefined, children: [] }];
+        // // const s = v[0].children?.find((node: TreeNode<Account>) => node.data?.id === created.id);
+        // this.table?.scrollTo({ top: v[0].children?.length ?? 0 });
     }
 
     seeAccountTransactions(accID: string) {
+        console.log('seeAccountTransactions', accID);
         throw new Error('Method not implemented.');
     }
 
-    toString(o: object) {
-        return JSON.stringify(o);
-    }
+    nodeSelect(event: TreeTableNode<Account>) {
+        if (this.modalVisible) {
+            console.log('ignore nodeSelect');
+            return;
+        }
 
-    nodeSelect(event: any) {
         console.log('nodeSelect');
         this.router.navigate(['/accounts', { type: this.type, id: event.node?.data?.id }]);
 
         this.selected = undefined;
-        if (event.node.data.id === this.groupFakeID) {
+        if (!event.node?.data || event.node?.data?.id === this.groupFakeID) {
             return;
         }
         this.selected = copyObject(event.node.data);
+        this.modalVisible = true;
     }
 
     addAccountGroup() {
         throw new Error('Method not implemented.');
+    }
+
+    async onSaveModal() {
+        console.log('onSaveModal');
+        this.modalVisible = false;
+
+        console.log('saveAccount', this.selected);
+        const created = await this.storage.upsertAccount(this.selected);
+        console.log('Account stored', created);
+        this.updateSelectedAccounts();
+    }
+
+    onCloseModal() {
+        console.log('onCloseModal');
+        this.modalVisible = false;
     }
 }

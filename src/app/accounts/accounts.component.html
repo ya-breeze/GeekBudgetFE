@@ -27,7 +27,7 @@
 
 <div style="margin: 1rem; width: 100%">
     <p-treeTable
-        id="accounts"
+        #accounts
         [value]="selectedAccounts"
         [scrollable]="true"
         [tableStyle]="{ 'min-width': '30rem' }"
@@ -58,7 +58,7 @@
         </ng-template>
         <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
             <tr [ttRow]="rowNode" [ttSelectableRow]="rowNode">
-                <td [attr.data-bs-toggle]="rowNode.parent ? 'modal' : null" [attr.data-bs-target]="rowNode.parent ? '#exampleModal' : null">
+                <td>
                     <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
                     @if (rowNode.parent) {
                     <span>{{ rowData.name }}</span>
@@ -66,11 +66,7 @@
                     <strong>{{ rowData.name }}</strong>
                     }
                 </td>
-                <td
-                    [attr.data-bs-toggle]="rowNode.parent ? 'modal' : null"
-                    [attr.data-bs-target]="rowNode.parent ? '#exampleModal' : null"
-                    style="width: 50%"
-                >
+                <td style="width: 50%">
                     {{ rowData.description }}
                 </td>
                 <td>
@@ -106,28 +102,20 @@
     </p-treeTable>
 </div>
 
-<div
-    class="modal modal-lg modal-dialog-scrollable fade"
-    id="exampleModal"
-    tabindex="-1"
-    aria-labelledby="exampleModalLabel"
-    aria-hidden="true"
->
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Account</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <app-account [account]="selected" [showType]="false" [showSave]="false"></app-account>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-        </div>
+<p-dialog header="Account" [modal]="true" [(visible)]="modalVisible" [style]="{ width: '25rem' }">
+    <!-- <span class="p-text-secondary block mb-5">Account</span> -->
+    <!-- <div class="flex align-items-center gap-3 mb-3">
+        <label for="username" class="font-semibold w-6rem">Username</label>
+        <input pInputText id="username" class="flex-auto" autocomplete="off" />
     </div>
-</div>
-
+    <div class="flex align-items-center gap-3 mb-5">
+        <label for="email" class="font-semibold w-6rem">Email</label>
+        <input pInputText id="email" class="flex-auto" autocomplete="off" />
+    </div> -->
+    <app-account [account]="selected" [showType]="false" [showSave]="false"></app-account>
+    <div class="flex justify-content-end gap-2">
+        <p-button label="Cancel" severity="secondary" (onClick)="onCloseModal()" />
+        <p-button label="Save" (onClick)="onSaveModal()" />
+    </div>
+</p-dialog>
 } @else { Loading... }

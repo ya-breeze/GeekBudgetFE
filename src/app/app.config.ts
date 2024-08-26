@@ -1,20 +1,11 @@
-import {
-    ApplicationConfig,
-    importProvidersFrom,
-    provideZoneChangeDetection,
-} from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 
 import { routes } from './app.routes';
-import {
-    GeekbudgetClientApiModule,
-    GeekbudgetClientConfiguration,
-    GeekbudgetClientConfigurationParameters,
-} from './client';
-import {
-    provideHttpClient,
-    withInterceptorsFromDi,
-} from '@angular/common/http';
+import { GeekbudgetClientApiModule, GeekbudgetClientConfiguration, GeekbudgetClientConfigurationParameters } from './client';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserModule } from '@angular/platform-browser';
 
 export function apiConfigFactory(): GeekbudgetClientConfiguration {
     const params: GeekbudgetClientConfigurationParameters = {
@@ -29,8 +20,6 @@ export const appConfig: ApplicationConfig = {
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes, withComponentInputBinding()),
         provideHttpClient(withInterceptorsFromDi()),
-        importProvidersFrom(
-            GeekbudgetClientApiModule.forRoot(apiConfigFactory)
-        ),
+        importProvidersFrom(GeekbudgetClientApiModule.forRoot(apiConfigFactory), BrowserModule, BrowserAnimationsModule),
     ],
 };

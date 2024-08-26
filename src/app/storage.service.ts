@@ -104,6 +104,19 @@ export class StorageService {
         this.accountsPromise = Promise.resolve(accounts);
     }
 
+    async upsertAccount(acc: Account | undefined): Promise<Account> {
+        if (!acc) {
+            throw new Error('Account is undefined');
+        }
+
+        const { id, ...rest } = acc;
+        if (id) {
+            return this.updateAccount(acc.id, rest);
+        }
+
+        return this.addAccount(rest);
+    }
+
     async addAccount(acc: AccountNoID): Promise<Account> {
         const token = await this.fetchToken();
         this.accountsService.configuration.credentials['BearerAuth'] = token;
@@ -111,6 +124,18 @@ export class StorageService {
 
         const accounts = await this.getAccounts();
         accounts.push(res);
+        this.accountsPromise = Promise.resolve(accounts);
+
+        return res;
+    }
+
+    async updateAccount(id: string, acc: AccountNoID): Promise<Account> {
+        const token = await this.fetchToken();
+        this.accountsService.configuration.credentials['BearerAuth'] = token;
+        const res = await firstValueFrom(this.accountsService.updateAccount(id, acc));
+
+        let accounts = await this.getAccounts();
+        accounts = accounts.map((a) => (a.id === id ? res : a));
         this.accountsPromise = Promise.resolve(accounts);
 
         return res;
