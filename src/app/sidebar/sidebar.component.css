@@ -35,19 +35,6 @@
     font-weight: 700;
     color: #fff;
 }
-.sidenav .logo-container .btn-close {
-    margin-left: auto;
-    cursor: pointer;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    background-color: transparent;
-    border: none;
-}
-.sidenav .logo-container .btn-close .fa-times {
-    color: #fff;
-    font-size: 24px;
-}
 
 .sidenav-nav {
     list-style: none;
