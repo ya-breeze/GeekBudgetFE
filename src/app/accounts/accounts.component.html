@@ -36,9 +36,9 @@
     >
         <ng-template pTemplate="header" let-columns>
             <tr>
-                <th>Name</th>
-                <th style="width: 50%">Description</th>
-                <th>
+                <th style="text-align: center">Name</th>
+                <th style="width: 50%; text-align: center">Description</th>
+                <th style="padding-right: 1rem">
                     <div style="display: flex">
                         <button (click)="addAccount('')" class="btn icon" data-toggle="tooltip" title="Add account">
                             <i class="bi-plus-circle see-account-transactions"></i>
@@ -69,7 +69,7 @@
                 <td style="width: 50%">
                     {{ rowData.description }}
                 </td>
-                <td>
+                <td style="padding-right: 1rem">
                     <div style="display: flex">
                         @if (rowNode.parent) {
                         <span class="icon" style="min-width: 3.7rem"></span>
@@ -104,15 +104,6 @@
 
 <p-dialog header="Account" [modal]="true" [(visible)]="modalVisible" [style]="{ width: '50rem', padding: '2rem' }">
     <div style="padding: 2rem">
-        <!-- <span class="p-text-secondary block mb-5">Account</span> -->
-        <!-- <div class="flex align-items-center gap-3 mb-3">
-        <label for="username" class="font-semibold w-6rem">Username</label>
-        <input pInputText id="username" class="flex-auto" autocomplete="off" />
-    </div>
-    <div class="flex align-items-center gap-3 mb-5">
-        <label for="email" class="font-semibold w-6rem">Email</label>
-        <input pInputText id="email" class="flex-auto" autocomplete="off" />
-    </div> -->
         <app-account [account]="selected" [showType]="false" [showSave]="false"></app-account>
         <div class="flex justify-content-end gap-2">
             <p-button label="Cancel" severity="secondary" (onClick)="onCloseModal()" />

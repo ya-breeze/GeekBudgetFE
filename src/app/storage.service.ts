@@ -1,5 +1,5 @@
 import { firstValueFrom } from 'rxjs';
-import { AuthService, UserService, AccountsService, CurrenciesService, Account, User, Currency, AccountNoID } from './client';
+import { AuthService, UserService, AccountsService, CurrenciesService, Account, User, Currency, AccountNoID, CurrencyNoID } from './client';
 import { Injectable } from '@angular/core';
 import { FullUserInfo } from './models/fullUserInfo';
 
@@ -141,4 +141,53 @@ export class StorageService {
         return res;
     }
     //#endregion Accounts
+
+    //#region Currencies
+    upsertCurrency(currency: Currency | undefined) {
+        if (!currency) {
+            throw new Error('Currency is undefined');
+        }
+
+        const { id, ...rest } = currency;
+        if (id) {
+            return this.updateCurrency(currency.id, rest);
+        }
+
+        return this.addCurrency(rest);
+    }
+
+    async addCurrency(currency: CurrencyNoID): Promise<Currency> {
+        const token = await this.fetchToken();
+        this.currenciesService.configuration.credentials['BearerAuth'] = token;
+        const res = await firstValueFrom(this.currenciesService.createCurrency(currency));
+
+        const currencies = await this.getCurrencies();
+        currencies.push(res);
+        this.currenciesPromise = Promise.resolve(currencies);
+
+        return res;
+    }
+
+    async updateCurrency(id: string, currency: CurrencyNoID): Promise<Currency> {
+        const token = await this.fetchToken();
+        this.currenciesService.configuration.credentials['BearerAuth'] = token;
+        const res = await firstValueFrom(this.currenciesService.updateCurrency(id, currency));
+
+        let currencies = await this.getCurrencies();
+        currencies = currencies.map((a) => (a.id === id ? res : a));
+        this.currenciesPromise = Promise.resolve(currencies);
+
+        return res;
+    }
+
+    async deleteCurrency(id: string) {
+        const token = await this.fetchToken();
+        this.currenciesService.configuration.credentials['BearerAuth'] = token;
+        await firstValueFrom(this.currenciesService.deleteCurrency(id));
+
+        let currencies = await this.getCurrencies();
+        currencies = currencies.filter((acc) => acc.id !== id);
+        this.currenciesPromise = Promise.resolve(currencies);
+    }
+    //#endregion Currencies
 }

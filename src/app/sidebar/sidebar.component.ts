@@ -15,23 +15,23 @@ export class SidebarComponent {
     items = [
         {
             routeLink: 'dashboard',
-            icon: 'fal fa-home',
+            icon: 'bi-house-door',
             label: 'Dashboard',
         },
-        // {
-        //     routeLink: 'pages',
-        //     icon: 'fal fa-file',
-        //     label: 'Pages',
-        // },
         {
             routeLink: 'settings',
-            icon: 'fal fa-cog',
+            icon: 'bi-gear',
             label: 'Settings',
         },
         {
             routeLink: 'accounts',
-            icon: 'fal fa-box-open',
+            icon: 'bi-inboxes',
             label: 'Accounts',
+        },
+        {
+            routeLink: 'currencies',
+            icon: 'bi-currency-exchange',
+            label: 'Currencies',
         },
     ];
 

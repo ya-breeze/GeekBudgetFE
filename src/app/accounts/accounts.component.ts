@@ -33,9 +33,7 @@ export class AccountsComponent implements OnInit {
     constructor(private route: ActivatedRoute, private router: Router, private storage: StorageService) {}
 
     async ngOnInit() {
-        await this.storage.getAccounts().then((accounts) => {
-            this.accounts = accounts;
-        });
+        this.accounts = await this.storage.getAccounts();
 
         this.route.paramMap.subscribe((params) => {
             this.type = (params.get('type') as Account.TypeEnum) ?? this.defaultType;
@@ -143,7 +141,7 @@ export class AccountsComponent implements OnInit {
         console.log('onSaveModal');
         this.modalVisible = false;
 
-        console.log('saveAccount', this.selected);
+        console.log('onSaveModal', this.selected);
         const created = await this.storage.upsertAccount(this.selected);
         console.log('Account stored', created);
         this.updateSelectedAccounts();

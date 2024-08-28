@@ -1,0 +1,37 @@
+th {
+    background-color: #f2f2f2;
+    color: #333;
+    font-weight: bold;
+    text-align: left;
+    padding: 0 0.5rem;
+    font-size: large;
+}
+
+td {
+    padding: 0.5rem;
+    font-size: large;
+}
+
+.icon {
+    font-size: 2rem;
+}
+
+.delete-currency {
+    color: gray;
+    cursor: pointer;
+}
+
+.delete-currency:hover {
+    color: red;
+    cursor: pointer;
+}
+
+.see-currency-transactions {
+    color: gray;
+    cursor: pointer;
+}
+
+.see-currency-transactions:hover {
+    color: rgb(68, 95, 245);
+    cursor: pointer;
+}
