@@ -321,13 +321,15 @@ export class TransactionsService {
      * @param description Filter by description
      * @param amountFrom Don\&#39;t return transactions with amount less than this
      * @param amountTo Don\&#39;t return transactions with amount more than this
+     * @param dateFrom Don\&#39;t return transactions with date before this
+     * @param dateTo Don\&#39;t return transactions with date after this
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getTransactions(description?: string, amountFrom?: number, amountTo?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<Transaction>>;
-    public getTransactions(description?: string, amountFrom?: number, amountTo?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<Transaction>>>;
-    public getTransactions(description?: string, amountFrom?: number, amountTo?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<Transaction>>>;
-    public getTransactions(description?: string, amountFrom?: number, amountTo?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getTransactions(description?: string, amountFrom?: number, amountTo?: number, dateFrom?: string, dateTo?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<Transaction>>;
+    public getTransactions(description?: string, amountFrom?: number, amountTo?: number, dateFrom?: string, dateTo?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<Transaction>>>;
+    public getTransactions(description?: string, amountFrom?: number, amountTo?: number, dateFrom?: string, dateTo?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<Transaction>>>;
+    public getTransactions(description?: string, amountFrom?: number, amountTo?: number, dateFrom?: string, dateTo?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new HttpParams({encoder: this.encoder});
         if (description !== undefined && description !== null) {
@@ -341,6 +343,14 @@ export class TransactionsService {
         if (amountTo !== undefined && amountTo !== null) {
           localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
             <any>amountTo, 'amountTo');
+        }
+        if (dateFrom !== undefined && dateFrom !== null) {
+          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>dateFrom, 'dateFrom');
+        }
+        if (dateTo !== undefined && dateTo !== null) {
+          localVarQueryParameters = this.addToHttpParams(localVarQueryParameters,
+            <any>dateTo, 'dateTo');
         }
 
         let localVarHeaders = this.defaultHeaders;

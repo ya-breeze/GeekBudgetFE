@@ -11,18 +11,12 @@
  */
 /* tslint:disable:no-unused-variable member-ordering */
 
-import { Inject, Injectable, Optional } from '@angular/core';
-import {
-    HttpClient,
-    HttpHeaders,
-    HttpParams,
-    HttpResponse,
-    HttpEvent,
-    HttpParameterCodec,
-    HttpContext,
-} from '@angular/common/http';
-import { CustomHttpParameterCodec } from '../encoder';
-import { Observable } from 'rxjs';
+import { Inject, Injectable, Optional }                      from '@angular/core';
+import { HttpClient, HttpHeaders, HttpParams,
+         HttpResponse, HttpEvent, HttpParameterCodec, HttpContext 
+        }       from '@angular/common/http';
+import { CustomHttpParameterCodec }                          from '../encoder';
+import { Observable }                                        from 'rxjs';
 
 // @ts-ignore
 import { Account } from '../model/account';
@@ -30,30 +24,27 @@ import { Account } from '../model/account';
 import { AccountNoID } from '../model/accountNoID';
 
 // @ts-ignore
-import { BASE_PATH, COLLECTION_FORMATS } from '../variables';
-import { GeekbudgetClientConfiguration } from '../configuration';
+import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
+import { GeekbudgetClientConfiguration }                                     from '../configuration';
+
+
 
 @Injectable({
-    providedIn: 'root',
+  providedIn: 'root'
 })
 export class AccountsService {
-    protected basePath = 'http://localhost:8080';
+
+    protected basePath = 'http://localhost';
     public defaultHeaders = new HttpHeaders();
     public configuration = new GeekbudgetClientConfiguration();
     public encoder: HttpParameterCodec;
 
-    constructor(
-        protected httpClient: HttpClient,
-        @Optional() @Inject(BASE_PATH) basePath: string | string[],
-        @Optional() configuration: GeekbudgetClientConfiguration
-    ) {
+    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string|string[], @Optional() configuration: GeekbudgetClientConfiguration) {
         if (configuration) {
             this.configuration = configuration;
         }
         if (typeof this.configuration.basePath !== 'string') {
-            const firstBasePath = Array.isArray(basePath)
-                ? basePath[0]
-                : undefined;
+            const firstBasePath = Array.isArray(basePath) ? basePath[0] : undefined;
             if (firstBasePath != undefined) {
                 basePath = firstBasePath;
             }
@@ -63,17 +54,13 @@ export class AccountsService {
             }
             this.configuration.basePath = basePath;
         }
-        this.encoder =
-            this.configuration.encoder || new CustomHttpParameterCodec();
+        this.encoder = this.configuration.encoder || new CustomHttpParameterCodec();
     }
 
+
     // @ts-ignore
-    private addToHttpParams(
-        httpParams: HttpParams,
-        value: any,
-        key?: string
-    ): HttpParams {
-        if (typeof value === 'object' && value instanceof Date === false) {
+    private addToHttpParams(httpParams: HttpParams, value: any, key?: string): HttpParams {
+        if (typeof value === "object" && value instanceof Date === false) {
             httpParams = this.addToHttpParamsRecursive(httpParams, value);
         } else {
             httpParams = this.addToHttpParamsRecursive(httpParams, value, key);
@@ -81,102 +68,44 @@ export class AccountsService {
         return httpParams;
     }
 
-    private addToHttpParamsRecursive(
-        httpParams: HttpParams,
-        value?: any,
-        key?: string
-    ): HttpParams {
+    private addToHttpParamsRecursive(httpParams: HttpParams, value?: any, key?: string): HttpParams {
         if (value == null) {
             return httpParams;
         }
 
-        if (typeof value === 'object') {
+        if (typeof value === "object") {
             if (Array.isArray(value)) {
-                (value as any[]).forEach(
-                    (elem) =>
-                        (httpParams = this.addToHttpParamsRecursive(
-                            httpParams,
-                            elem,
-                            key
-                        ))
-                );
+                (value as any[]).forEach( elem => httpParams = this.addToHttpParamsRecursive(httpParams, elem, key));
             } else if (value instanceof Date) {
                 if (key != null) {
-                    httpParams = httpParams.append(
-                        key,
-                        (value as Date).toISOString().substring(0, 10)
-                    );
+                    httpParams = httpParams.append(key, (value as Date).toISOString().substring(0, 10));
                 } else {
-                    throw Error('key may not be null if value is Date');
+                   throw Error("key may not be null if value is Date");
                 }
             } else {
-                Object.keys(value).forEach(
-                    (k) =>
-                        (httpParams = this.addToHttpParamsRecursive(
-                            httpParams,
-                            value[k],
-                            key != null ? `${key}.${k}` : k
-                        ))
-                );
+                Object.keys(value).forEach( k => httpParams = this.addToHttpParamsRecursive(
+                    httpParams, value[k], key != null ? `${key}.${k}` : k));
             }
         } else if (key != null) {
             httpParams = httpParams.append(key, value);
         } else {
-            throw Error('key may not be null if value is not object or array');
+            throw Error("key may not be null if value is not object or array");
         }
         return httpParams;
     }
 
     /**
      * create new account
-     * @param accountNoID
+     * @param accountNoID 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public createAccount(
-        accountNoID: AccountNoID,
-        observe?: 'body',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<Account>;
-    public createAccount(
-        accountNoID: AccountNoID,
-        observe?: 'response',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<HttpResponse<Account>>;
-    public createAccount(
-        accountNoID: AccountNoID,
-        observe?: 'events',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<HttpEvent<Account>>;
-    public createAccount(
-        accountNoID: AccountNoID,
-        observe: any = 'body',
-        reportProgress: boolean = false,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<any> {
+    public createAccount(accountNoID: AccountNoID, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Account>;
+    public createAccount(accountNoID: AccountNoID, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Account>>;
+    public createAccount(accountNoID: AccountNoID, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Account>>;
+    public createAccount(accountNoID: AccountNoID, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (accountNoID === null || accountNoID === undefined) {
-            throw new Error(
-                'Required parameter accountNoID was null or undefined when calling createAccount.'
-            );
+            throw new Error('Required parameter accountNoID was null or undefined when calling createAccount.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -185,57 +114,46 @@ export class AccountsService {
         // authentication (BearerAuth) required
         localVarCredential = this.configuration.lookupCredential('BearerAuth');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set(
-                'Authorization',
-                'Bearer ' + localVarCredential
-            );
+            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
-        let localVarHttpHeaderAcceptSelected: string | undefined =
-            options && options.httpHeaderAccept;
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
         if (localVarHttpHeaderAcceptSelected === undefined) {
             // to determine the Accept header
-            const httpHeaderAccepts: string[] = ['application/json'];
-            localVarHttpHeaderAcceptSelected =
-                this.configuration.selectHeaderAccept(httpHeaderAccepts);
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
         if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set(
-                'Accept',
-                localVarHttpHeaderAcceptSelected
-            );
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
         }
 
-        let localVarHttpContext: HttpContext | undefined =
-            options && options.context;
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
         if (localVarHttpContext === undefined) {
             localVarHttpContext = new HttpContext();
         }
 
-        let localVarTransferCache: boolean | undefined =
-            options && options.transferCache;
+        let localVarTransferCache: boolean | undefined = options && options.transferCache;
         if (localVarTransferCache === undefined) {
             localVarTransferCache = true;
         }
 
+
         // to determine the Content-Type header
-        const consumes: string[] = ['application/json'];
-        const httpContentTypeSelected: string | undefined =
-            this.configuration.selectHeaderContentType(consumes);
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
         if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set(
-                'Content-Type',
-                httpContentTypeSelected
-            );
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
         }
 
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
                 responseType_ = 'text';
-            } else if (
-                this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
-            ) {
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
                 responseType_ = 'json';
             } else {
                 responseType_ = 'blob';
@@ -243,9 +161,7 @@ export class AccountsService {
         }
 
         let localVarPath = `/v1/accounts`;
-        return this.httpClient.request<Account>(
-            'post',
-            `${this.configuration.basePath}${localVarPath}`,
+        return this.httpClient.request<Account>('post', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: accountNoID,
@@ -254,7 +170,7 @@ export class AccountsService {
                 headers: localVarHeaders,
                 observe: observe,
                 transferCache: localVarTransferCache,
-                reportProgress: reportProgress,
+                reportProgress: reportProgress
             }
         );
     }
@@ -265,50 +181,12 @@ export class AccountsService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public deleteAccount(
-        id: string,
-        observe?: 'body',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: undefined;
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<any>;
-    public deleteAccount(
-        id: string,
-        observe?: 'response',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: undefined;
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<HttpResponse<any>>;
-    public deleteAccount(
-        id: string,
-        observe?: 'events',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: undefined;
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<HttpEvent<any>>;
-    public deleteAccount(
-        id: string,
-        observe: any = 'body',
-        reportProgress: boolean = false,
-        options?: {
-            httpHeaderAccept?: undefined;
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<any> {
+    public deleteAccount(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public deleteAccount(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public deleteAccount(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public deleteAccount(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error(
-                'Required parameter id was null or undefined when calling deleteAccount.'
-            );
+            throw new Error('Required parameter id was null or undefined when calling deleteAccount.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -317,64 +195,44 @@ export class AccountsService {
         // authentication (BearerAuth) required
         localVarCredential = this.configuration.lookupCredential('BearerAuth');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set(
-                'Authorization',
-                'Bearer ' + localVarCredential
-            );
+            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
-        let localVarHttpHeaderAcceptSelected: string | undefined =
-            options && options.httpHeaderAccept;
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
         if (localVarHttpHeaderAcceptSelected === undefined) {
             // to determine the Accept header
-            const httpHeaderAccepts: string[] = [];
-            localVarHttpHeaderAcceptSelected =
-                this.configuration.selectHeaderAccept(httpHeaderAccepts);
+            const httpHeaderAccepts: string[] = [
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
         if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set(
-                'Accept',
-                localVarHttpHeaderAcceptSelected
-            );
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
         }
 
-        let localVarHttpContext: HttpContext | undefined =
-            options && options.context;
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
         if (localVarHttpContext === undefined) {
             localVarHttpContext = new HttpContext();
         }
 
-        let localVarTransferCache: boolean | undefined =
-            options && options.transferCache;
+        let localVarTransferCache: boolean | undefined = options && options.transferCache;
         if (localVarTransferCache === undefined) {
             localVarTransferCache = true;
         }
+
 
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
                 responseType_ = 'text';
-            } else if (
-                this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
-            ) {
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
                 responseType_ = 'json';
             } else {
                 responseType_ = 'blob';
             }
         }
 
-        let localVarPath = `/v1/accounts/${this.configuration.encodeParam({
-            name: 'id',
-            value: id,
-            in: 'path',
-            style: 'simple',
-            explode: false,
-            dataType: 'string',
-            dataFormat: 'uuid',
-        })}`;
-        return this.httpClient.request<any>(
-            'delete',
-            `${this.configuration.basePath}${localVarPath}`,
+        let localVarPath = `/v1/accounts/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        return this.httpClient.request<any>('delete', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -382,7 +240,7 @@ export class AccountsService {
                 headers: localVarHeaders,
                 observe: observe,
                 transferCache: localVarTransferCache,
-                reportProgress: reportProgress,
+                reportProgress: reportProgress
             }
         );
     }
@@ -393,50 +251,12 @@ export class AccountsService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getAccount(
-        id: string,
-        observe?: 'body',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<Account>;
-    public getAccount(
-        id: string,
-        observe?: 'response',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<HttpResponse<Account>>;
-    public getAccount(
-        id: string,
-        observe?: 'events',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<HttpEvent<Account>>;
-    public getAccount(
-        id: string,
-        observe: any = 'body',
-        reportProgress: boolean = false,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<any> {
+    public getAccount(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Account>;
+    public getAccount(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Account>>;
+    public getAccount(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Account>>;
+    public getAccount(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error(
-                'Required parameter id was null or undefined when calling getAccount.'
-            );
+            throw new Error('Required parameter id was null or undefined when calling getAccount.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -445,64 +265,45 @@ export class AccountsService {
         // authentication (BearerAuth) required
         localVarCredential = this.configuration.lookupCredential('BearerAuth');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set(
-                'Authorization',
-                'Bearer ' + localVarCredential
-            );
+            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
-        let localVarHttpHeaderAcceptSelected: string | undefined =
-            options && options.httpHeaderAccept;
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
         if (localVarHttpHeaderAcceptSelected === undefined) {
             // to determine the Accept header
-            const httpHeaderAccepts: string[] = ['application/json'];
-            localVarHttpHeaderAcceptSelected =
-                this.configuration.selectHeaderAccept(httpHeaderAccepts);
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
         if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set(
-                'Accept',
-                localVarHttpHeaderAcceptSelected
-            );
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
         }
 
-        let localVarHttpContext: HttpContext | undefined =
-            options && options.context;
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
         if (localVarHttpContext === undefined) {
             localVarHttpContext = new HttpContext();
         }
 
-        let localVarTransferCache: boolean | undefined =
-            options && options.transferCache;
+        let localVarTransferCache: boolean | undefined = options && options.transferCache;
         if (localVarTransferCache === undefined) {
             localVarTransferCache = true;
         }
+
 
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
                 responseType_ = 'text';
-            } else if (
-                this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
-            ) {
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
                 responseType_ = 'json';
             } else {
                 responseType_ = 'blob';
             }
         }
 
-        let localVarPath = `/v1/accounts/${this.configuration.encodeParam({
-            name: 'id',
-            value: id,
-            in: 'path',
-            style: 'simple',
-            explode: false,
-            dataType: 'string',
-            dataFormat: 'uuid',
-        })}`;
-        return this.httpClient.request<Account>(
-            'get',
-            `${this.configuration.basePath}${localVarPath}`,
+        let localVarPath = `/v1/accounts/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        return this.httpClient.request<Account>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -510,7 +311,7 @@ export class AccountsService {
                 headers: localVarHeaders,
                 observe: observe,
                 transferCache: localVarTransferCache,
-                reportProgress: reportProgress,
+                reportProgress: reportProgress
             }
         );
     }
@@ -521,50 +322,12 @@ export class AccountsService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getAccountHistory(
-        accountId: string,
-        observe?: 'body',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<Array<string>>;
-    public getAccountHistory(
-        accountId: string,
-        observe?: 'response',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<HttpResponse<Array<string>>>;
-    public getAccountHistory(
-        accountId: string,
-        observe?: 'events',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<HttpEvent<Array<string>>>;
-    public getAccountHistory(
-        accountId: string,
-        observe: any = 'body',
-        reportProgress: boolean = false,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<any> {
+    public getAccountHistory(accountId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<string>>;
+    public getAccountHistory(accountId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<string>>>;
+    public getAccountHistory(accountId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<string>>>;
+    public getAccountHistory(accountId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (accountId === null || accountId === undefined) {
-            throw new Error(
-                'Required parameter accountId was null or undefined when calling getAccountHistory.'
-            );
+            throw new Error('Required parameter accountId was null or undefined when calling getAccountHistory.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -573,64 +336,45 @@ export class AccountsService {
         // authentication (BearerAuth) required
         localVarCredential = this.configuration.lookupCredential('BearerAuth');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set(
-                'Authorization',
-                'Bearer ' + localVarCredential
-            );
+            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
-        let localVarHttpHeaderAcceptSelected: string | undefined =
-            options && options.httpHeaderAccept;
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
         if (localVarHttpHeaderAcceptSelected === undefined) {
             // to determine the Accept header
-            const httpHeaderAccepts: string[] = ['application/json'];
-            localVarHttpHeaderAcceptSelected =
-                this.configuration.selectHeaderAccept(httpHeaderAccepts);
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
         if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set(
-                'Accept',
-                localVarHttpHeaderAcceptSelected
-            );
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
         }
 
-        let localVarHttpContext: HttpContext | undefined =
-            options && options.context;
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
         if (localVarHttpContext === undefined) {
             localVarHttpContext = new HttpContext();
         }
 
-        let localVarTransferCache: boolean | undefined =
-            options && options.transferCache;
+        let localVarTransferCache: boolean | undefined = options && options.transferCache;
         if (localVarTransferCache === undefined) {
             localVarTransferCache = true;
         }
+
 
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
                 responseType_ = 'text';
-            } else if (
-                this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
-            ) {
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
                 responseType_ = 'json';
             } else {
                 responseType_ = 'blob';
             }
         }
 
-        let localVarPath = `/v1/accounts/${this.configuration.encodeParam({
-            name: 'accountId',
-            value: accountId,
-            in: 'path',
-            style: 'simple',
-            explode: false,
-            dataType: 'string',
-            dataFormat: 'uuid',
-        })}/history`;
-        return this.httpClient.request<Array<string>>(
-            'get',
-            `${this.configuration.basePath}${localVarPath}`,
+        let localVarPath = `/v1/accounts/${this.configuration.encodeParam({name: "accountId", value: accountId, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/history`;
+        return this.httpClient.request<Array<string>>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -638,7 +382,7 @@ export class AccountsService {
                 headers: localVarHeaders,
                 observe: observe,
                 transferCache: localVarTransferCache,
-                reportProgress: reportProgress,
+                reportProgress: reportProgress
             }
         );
     }
@@ -648,88 +392,48 @@ export class AccountsService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getAccounts(
-        observe?: 'body',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<Array<Account>>;
-    public getAccounts(
-        observe?: 'response',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<HttpResponse<Array<Account>>>;
-    public getAccounts(
-        observe?: 'events',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<HttpEvent<Array<Account>>>;
-    public getAccounts(
-        observe: any = 'body',
-        reportProgress: boolean = false,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<any> {
+    public getAccounts(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<Account>>;
+    public getAccounts(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<Account>>>;
+    public getAccounts(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<Account>>>;
+    public getAccounts(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
         let localVarHeaders = this.defaultHeaders;
 
         let localVarCredential: string | undefined;
         // authentication (BearerAuth) required
         localVarCredential = this.configuration.lookupCredential('BearerAuth');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set(
-                'Authorization',
-                'Bearer ' + localVarCredential
-            );
+            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
-        let localVarHttpHeaderAcceptSelected: string | undefined =
-            options && options.httpHeaderAccept;
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
         if (localVarHttpHeaderAcceptSelected === undefined) {
             // to determine the Accept header
-            const httpHeaderAccepts: string[] = ['application/json'];
-            localVarHttpHeaderAcceptSelected =
-                this.configuration.selectHeaderAccept(httpHeaderAccepts);
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
         if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set(
-                'Accept',
-                localVarHttpHeaderAcceptSelected
-            );
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
         }
 
-        let localVarHttpContext: HttpContext | undefined =
-            options && options.context;
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
         if (localVarHttpContext === undefined) {
             localVarHttpContext = new HttpContext();
         }
 
-        let localVarTransferCache: boolean | undefined =
-            options && options.transferCache;
+        let localVarTransferCache: boolean | undefined = options && options.transferCache;
         if (localVarTransferCache === undefined) {
             localVarTransferCache = true;
         }
+
 
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
                 responseType_ = 'text';
-            } else if (
-                this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
-            ) {
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
                 responseType_ = 'json';
             } else {
                 responseType_ = 'blob';
@@ -737,9 +441,7 @@ export class AccountsService {
         }
 
         let localVarPath = `/v1/accounts`;
-        return this.httpClient.request<Array<Account>>(
-            'get',
-            `${this.configuration.basePath}${localVarPath}`,
+        return this.httpClient.request<Array<Account>>('get', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -747,7 +449,7 @@ export class AccountsService {
                 headers: localVarHeaders,
                 observe: observe,
                 transferCache: localVarTransferCache,
-                reportProgress: reportProgress,
+                reportProgress: reportProgress
             }
         );
     }
@@ -755,63 +457,19 @@ export class AccountsService {
     /**
      * update account
      * @param id ID of the account
-     * @param accountNoID
+     * @param accountNoID 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public updateAccount(
-        id: string,
-        accountNoID: AccountNoID,
-        observe?: 'body',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<Account>;
-    public updateAccount(
-        id: string,
-        accountNoID: AccountNoID,
-        observe?: 'response',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<HttpResponse<Account>>;
-    public updateAccount(
-        id: string,
-        accountNoID: AccountNoID,
-        observe?: 'events',
-        reportProgress?: boolean,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<HttpEvent<Account>>;
-    public updateAccount(
-        id: string,
-        accountNoID: AccountNoID,
-        observe: any = 'body',
-        reportProgress: boolean = false,
-        options?: {
-            httpHeaderAccept?: 'application/json';
-            context?: HttpContext;
-            transferCache?: boolean;
-        }
-    ): Observable<any> {
+    public updateAccount(id: string, accountNoID: AccountNoID, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Account>;
+    public updateAccount(id: string, accountNoID: AccountNoID, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Account>>;
+    public updateAccount(id: string, accountNoID: AccountNoID, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Account>>;
+    public updateAccount(id: string, accountNoID: AccountNoID, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error(
-                'Required parameter id was null or undefined when calling updateAccount.'
-            );
+            throw new Error('Required parameter id was null or undefined when calling updateAccount.');
         }
         if (accountNoID === null || accountNoID === undefined) {
-            throw new Error(
-                'Required parameter accountNoID was null or undefined when calling updateAccount.'
-            );
+            throw new Error('Required parameter accountNoID was null or undefined when calling updateAccount.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -820,75 +478,54 @@ export class AccountsService {
         // authentication (BearerAuth) required
         localVarCredential = this.configuration.lookupCredential('BearerAuth');
         if (localVarCredential) {
-            localVarHeaders = localVarHeaders.set(
-                'Authorization',
-                'Bearer ' + localVarCredential
-            );
+            localVarHeaders = localVarHeaders.set('Authorization', 'Bearer ' + localVarCredential);
         }
 
-        let localVarHttpHeaderAcceptSelected: string | undefined =
-            options && options.httpHeaderAccept;
+        let localVarHttpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
         if (localVarHttpHeaderAcceptSelected === undefined) {
             // to determine the Accept header
-            const httpHeaderAccepts: string[] = ['application/json'];
-            localVarHttpHeaderAcceptSelected =
-                this.configuration.selectHeaderAccept(httpHeaderAccepts);
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            localVarHttpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
         if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set(
-                'Accept',
-                localVarHttpHeaderAcceptSelected
-            );
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
         }
 
-        let localVarHttpContext: HttpContext | undefined =
-            options && options.context;
+        let localVarHttpContext: HttpContext | undefined = options && options.context;
         if (localVarHttpContext === undefined) {
             localVarHttpContext = new HttpContext();
         }
 
-        let localVarTransferCache: boolean | undefined =
-            options && options.transferCache;
+        let localVarTransferCache: boolean | undefined = options && options.transferCache;
         if (localVarTransferCache === undefined) {
             localVarTransferCache = true;
         }
 
+
         // to determine the Content-Type header
-        const consumes: string[] = ['application/json'];
-        const httpContentTypeSelected: string | undefined =
-            this.configuration.selectHeaderContentType(consumes);
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
         if (httpContentTypeSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set(
-                'Content-Type',
-                httpContentTypeSelected
-            );
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
         }
 
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
                 responseType_ = 'text';
-            } else if (
-                this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)
-            ) {
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
                 responseType_ = 'json';
             } else {
                 responseType_ = 'blob';
             }
         }
 
-        let localVarPath = `/v1/accounts/${this.configuration.encodeParam({
-            name: 'id',
-            value: id,
-            in: 'path',
-            style: 'simple',
-            explode: false,
-            dataType: 'string',
-            dataFormat: 'uuid',
-        })}`;
-        return this.httpClient.request<Account>(
-            'put',
-            `${this.configuration.basePath}${localVarPath}`,
+        let localVarPath = `/v1/accounts/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        return this.httpClient.request<Account>('put', `${this.configuration.basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: accountNoID,
@@ -897,8 +534,9 @@ export class AccountsService {
                 headers: localVarHeaders,
                 observe: observe,
                 transferCache: localVarTransferCache,
-                reportProgress: reportProgress,
+                reportProgress: reportProgress
             }
         );
     }
+
 }

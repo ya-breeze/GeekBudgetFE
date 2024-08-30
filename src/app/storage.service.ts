@@ -78,11 +78,7 @@ export class StorageService {
 
         await this.fetchToken();
 
-        return {
-            user: await this.getUser(),
-            accounts: await this.getAccounts(),
-            currencies: await this.getCurrencies(),
-        };
+        return new FullUserInfo(await this.getUser(), await this.getAccounts(), await this.getCurrencies());
     }
 
     async getUser(): Promise<User> {
@@ -226,14 +222,18 @@ export class StorageService {
     //#endregion Currencies
 
     //#region Transactions
-    async getTransactions(): Promise<Transaction[]> {
+    async getTransactions(dateFrom?: Date, dateTo?: Date): Promise<Transaction[]> {
         console.log('enter getTransactions()');
         const token = await this.fetchToken();
 
         const fullUserInfo = await this.getFullUser();
 
         this.transactionsService.configuration.credentials['BearerAuth'] = token;
-        const transactions = (await firstValueFrom(this.transactionsService.getTransactions())).map((t: NetworkTransaction) => {
+        const transactions = (
+            await firstValueFrom(
+                this.transactionsService.getTransactions(undefined, undefined, undefined, dateFrom?.toISOString(), dateTo?.toISOString())
+            )
+        ).map((t: NetworkTransaction) => {
             return {
                 ...t,
                 date: new Date(t.date),
@@ -248,7 +248,7 @@ export class StorageService {
         });
 
         transactions.sort((a, b) => {
-            return a.date.getTime() - b.date.getTime();
+            return b.date.getTime() - a.date.getTime();
         });
 
         console.log('returning transactions');

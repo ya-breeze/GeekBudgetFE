@@ -9,6 +9,10 @@ import { InputGroupModule } from 'primeng/inputgroup';
 import { CalendarModule } from 'primeng/calendar';
 import { CommonModule } from '@angular/common';
 import { TableModule, TableRowSelectEvent } from 'primeng/table';
+import { MeterGroupModule, MeterItem } from 'primeng/metergroup';
+import { DropdownModule } from 'primeng/dropdown';
+import { Account } from '../client';
+import { FullUserInfo } from '../models/fullUserInfo';
 
 enum DateRange {
     DAY,
@@ -28,6 +32,8 @@ enum DateRange {
         InputGroupModule,
         CalendarModule,
         TableModule,
+        MeterGroupModule,
+        DropdownModule,
     ],
     templateUrl: './transactions.component.html',
     styleUrl: './transactions.component.css',
@@ -40,11 +46,43 @@ export class TransactionsComponent implements OnInit {
     dateRange = DateRange.WEEK;
     transactions: Transaction[] = [];
     selected: Transaction | undefined;
+    meterGroupData: MeterItem[] | undefined;
+    accounts: Account[] | undefined;
+    selectedAccount: Account | undefined;
+    fullUser: FullUserInfo | undefined;
 
     constructor(private route: ActivatedRoute, private router: Router, private storage: StorageService) {}
 
     async ngOnInit() {
-        this.transactions = await this.storage.getTransactions();
+        this.route.paramMap.subscribe(async (params) => {
+            this.fullUser = await this.storage.getFullUser();
+            this.accounts = this.fullUser?.accounts;
+
+            const from = params.get('from');
+            this.dateFrom = from ? new Date(from) : new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
+            console.log('from', this.dateFrom);
+
+            const account = params.get('account');
+            this.selectedAccount = account ? this.accounts?.find((acc) => acc.id === account) : undefined;
+            console.log('account', this.selectedAccount);
+            // We change URL when user clicks, so don't update selected here to avoid issues
+            // this.selected = params.get('id') ? this.accounts?.find((acc) => acc.id === params.get('id')) : undefined;
+            // this.updateSelectedAccounts();
+            await this.updateData();
+        });
+    }
+
+    async updateData() {
+        console.log('updateData');
+        this.transactions = await this.storage.getTransactions(this.dateFrom);
+        if (this.selectedAccount) {
+            this.transactions = this.transactions.filter((t) => t.movements.some((m) => m.account.id === this.selectedAccount?.id));
+        }
+        this.meterGroupData = this.updateMeterGroupData();
+    }
+
+    onCalendarSelect() {
+        this.updateData();
     }
 
     onRangeChange(v: DateRange) {
@@ -55,11 +93,50 @@ export class TransactionsComponent implements OnInit {
         throw new Error('Method not implemented.');
     }
 
-    deleteCurrency(arg0: any) {
+    deleteTransaction(arg0: any) {
         throw new Error('Method not implemented.');
     }
 
-    addCurrency() {
+    addTransaction() {
         throw new Error('Method not implemented.');
+    }
+
+    updateMeterGroupData(): MeterItem[] {
+        const colorList = [
+            '#B3B31A',
+            '#00E680',
+            '#4D8066',
+            '#809980',
+            '#1AFF33',
+            '#999933',
+            '#FF3380',
+            '#CCCC00',
+            '#66E64D',
+            '#4D80CC',
+            '#9900B3',
+            '#E64D66',
+            '#4DB380',
+            '#FF4D4D',
+            '#99E6E6',
+            '#6666FF',
+        ];
+        let usedColor = 0;
+        const res: MeterItem[] = [];
+
+        this.transactions.map((t) => {
+            // const amount = t.movements.reduce((acc, m) => acc + m.amount, 0);
+            res.push({
+                label: t.description,
+                value: usedColor,
+                color: colorList[++usedColor],
+            });
+        });
+
+        return res;
+    }
+
+    onAccountChange() {
+        this.router.navigate(['/transactions', { account: this.selectedAccount?.id }]);
+        this.updateData();
     }
 }

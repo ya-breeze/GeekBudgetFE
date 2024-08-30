@@ -2,7 +2,7 @@
 
 <div style="display: flex; align-items: baseline">
     <button type="button" class="btn btn-outline-primary"><i class="bi-arrow-left-circle"></i></button>
-    <p-calendar [(ngModel)]="dateFrom" />
+    <p-calendar [(ngModel)]="dateFrom" (onSelect)="onCalendarSelect()" />
     <button type="button" class="btn btn-outline-primary"><i class="bi-arrow-right-circle"></i></button>
 
     <div class="btn-group" role="group" aria-label="Basic outlined example" style="margin-left: auto">
@@ -32,6 +32,14 @@
         </button>
     </div>
 
+    <p-dropdown
+        [options]="accounts"
+        [(ngModel)]="selectedAccount"
+        [checkmark]="true"
+        optionLabel="name"
+        placeholder="Select an account"
+        (onChange)="onAccountChange()"
+    />
     <div style="margin-left: auto">
         <p-inputGroup>
             <p-inputSwitch [(ngModel)]="showExpenses" />Expenses <p-inputSwitch [(ngModel)]="showIncomes" />Incomes
@@ -39,7 +47,8 @@
     </div>
 </div>
 
-@if (transactions) {
+@if (transactions && meterGroupData) {
+<p-meterGroup [value]="meterGroupData" />
 <p-table
     [value]="transactions"
     styleClass="p-datatable-striped"
@@ -57,13 +66,13 @@
             <th style="padding-right: 1rem">
                 <div style="display: flex">
                     <button
-                        (click)="addCurrency()"
+                        (click)="addTransaction()"
                         class="btn icon add-transaction"
                         data-toggle="tooltip"
-                        title="Add currency"
+                        title="Add transaction"
                         style="margin-left: auto"
                     >
-                        <i class="bi-plus-circle see-currency-transactions"></i>
+                        <i class="bi-plus-circle add-transaction"></i>
                     </button>
                 </div>
             </th>
@@ -83,13 +92,13 @@
             <td style="padding-right: 1rem">
                 <div style="display: flex">
                     <button
-                        (click)="deleteCurrency(product.id)"
+                        (click)="deleteTransaction(product.id)"
                         class="btn icon delete-transaction"
                         data-toggle="tooltip"
-                        title="Delete currency"
+                        title="Delete transaction"
                         style="margin-left: auto"
                     >
-                        <i class="bi-x-circle delete-currency"></i>
+                        <i class="bi-x-circle delete-transaction"></i>
                     </button>
                 </div>
             </td>

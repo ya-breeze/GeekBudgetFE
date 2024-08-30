@@ -11,6 +11,7 @@ export function apiConfigFactory(): GeekbudgetClientConfiguration {
     const params: GeekbudgetClientConfigurationParameters = {
         username: 'test',
         password: 'test',
+        basePath: 'http://localhost:8080',
     };
     return new GeekbudgetClientConfiguration(params);
 }
