@@ -30,7 +30,7 @@
     </ng-template>
     <ng-template pTemplate="body" let-product>
         <tr [pSelectableRow]="product">
-            <td>
+            <td style="text-align: right">
                 {{ product.name }}
             </td>
             <td>{{ product.description }}</td>
@@ -50,4 +50,16 @@
         </tr>
     </ng-template>
 </p-table>
+
+<p-dialog header="Bank importer" [modal]="true" [(visible)]="modalVisible" [style]="{ width: '50rem', padding: '2rem' }">
+    <div style="padding: 2rem">
+        <app-bank-importer [value]="selected" [showType]="false" [showSave]="false"></app-bank-importer>
+        <div style="display: flex">
+            <p-button label="Fetch" severity="success" (onClick)="onFetch()" />
+            <span style="margin-left: auto"></span>
+            <p-button label="Cancel" severity="secondary" (onClick)="onCloseModal()" />
+            <p-button label="Save" (onClick)="onSaveModal()" />
+        </div>
+    </div>
+</p-dialog>
 } @else { Loading... }

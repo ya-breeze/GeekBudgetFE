@@ -1,0 +1,19 @@
+@if (value) {
+<form>
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" [(ngModel)]="value.name" name="name" required />
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <input type="text" class="form-control" id="description" [(ngModel)]="value.description" name="description" required />
+    </div>
+    <div class="mb-3">
+        <label for="extra" class="form-label">Token</label>
+        <input type="text" class="form-control" id="extra" [(ngModel)]="value.extra" name="extra" required />
+    </div>
+    @if (showSave) {
+    <button type="submit" class="btn btn-primary">Save</button>
+    }
+</form>
+} @else { Loading... }

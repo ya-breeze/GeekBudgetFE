@@ -6,6 +6,7 @@ export * from './authData';
 export * from './authorize200Response';
 export * from './bankImporter';
 export * from './bankImporterNoID';
+export * from './bankImporterNoIDLastImportsInner';
 export * from './checkMatcher200Response';
 export * from './checkMatcherRequest';
 export * from './currency';

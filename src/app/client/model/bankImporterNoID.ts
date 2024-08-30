@@ -9,6 +9,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { BankImporterNoIDLastImportsInner } from './bankImporterNoIDLastImportsInner';
 
 
 export interface BankImporterNoID { 
@@ -18,5 +19,14 @@ export interface BankImporterNoID {
      * Stores extra data about bank importer. For example could hold \"bank account number\" to be able to distinguish between different bank accounts, or it could hold token for bank API
      */
     extra?: string;
+    /**
+     * Type of bank importer. It\'s used to distinguish between different banks. For example, FIO bank or KB bank.
+     */
+    type?: string;
+    /**
+     * Date of last successful import.
+     */
+    lastSuccessfulImport?: string;
+    lastImports?: Array<BankImporterNoIDLastImportsInner>;
 }
 

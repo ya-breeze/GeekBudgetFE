@@ -267,5 +267,13 @@ export class StorageService {
         this.bankImportersService.configuration.credentials['BearerAuth'] = token;
         return firstValueFrom(this.bankImportersService.getBankImporters());
     }
+
+    async bankImporterFetch(id: string): Promise<string> {
+        console.log('enter bankImporterFetch()');
+        const token = await this.fetchToken();
+
+        this.bankImportersService.configuration.credentials['BearerAuth'] = token;
+        return firstValueFrom(this.bankImportersService.fetchBankImporter(id));
+    }
     //#endregion BankImporters
 }
