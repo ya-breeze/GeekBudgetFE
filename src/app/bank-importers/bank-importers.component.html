@@ -1,0 +1,53 @@
+<h2>Bank importers</h2>
+
+@if (bankImporters) {
+<p-table
+    [value]="bankImporters"
+    styleClass="p-datatable-striped"
+    selectionMode="single"
+    [(selection)]="selected"
+    (onRowSelect)="onRowSelect($event)"
+    [tableStyle]="{ 'min-width': '80%' }"
+>
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="text-align: right; text-align: center">Name</th>
+            <th style="text-align: center">Description</th>
+            <th style="padding-right: 1rem">
+                <div style="display: flex">
+                    <button
+                        (click)="addBankImporters()"
+                        class="btn icon add-bankimporter"
+                        data-toggle="tooltip"
+                        title="Add Bank importer"
+                        style="margin-left: auto"
+                    >
+                        <i class="bi-plus-circle add-bankimporter"></i>
+                    </button>
+                </div>
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+        <tr [pSelectableRow]="product">
+            <td>
+                {{ product.name }}
+            </td>
+            <td>{{ product.description }}</td>
+            <td style="padding-right: 1rem">
+                <div style="display: flex">
+                    <button
+                        (click)="deleteBankImporter(product.id)"
+                        class="btn icon delete-bankimporter"
+                        data-toggle="tooltip"
+                        title="Delete Bank importer"
+                        style="margin-left: auto"
+                    >
+                        <i class="bi-x-circle delete-bankimporter"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+} @else { Loading... }

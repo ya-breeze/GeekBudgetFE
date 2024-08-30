@@ -11,6 +11,8 @@ import {
     CurrencyNoID,
     Transaction as NetworkTransaction,
     TransactionsService,
+    BankImportersService,
+    BankImporter,
 } from './client';
 import { Injectable } from '@angular/core';
 import { FullUserInfo } from './models/fullUserInfo';
@@ -51,7 +53,8 @@ export class StorageService {
         protected userService: UserService,
         protected accountsService: AccountsService,
         protected currenciesService: CurrenciesService,
-        protected transactionsService: TransactionsService
+        protected transactionsService: TransactionsService,
+        protected bankImportersService: BankImportersService
     ) {}
 
     async fetchToken(): Promise<string> {
@@ -255,4 +258,14 @@ export class StorageService {
         return transactions;
     }
     //#endregion Transactions
+
+    //#region BankImporters
+    async getBankImporters(): Promise<BankImporter[]> {
+        console.log('enter getTransactions()');
+        const token = await this.fetchToken();
+
+        this.bankImportersService.configuration.credentials['BearerAuth'] = token;
+        return firstValueFrom(this.bankImportersService.getBankImporters());
+    }
+    //#endregion BankImporters
 }

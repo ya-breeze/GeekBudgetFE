@@ -38,6 +38,11 @@ export class SidebarComponent {
             icon: 'bi-currency-exchange',
             label: 'Currencies',
         },
+        {
+            routeLink: 'bank_importers',
+            icon: 'bi-cloud-download',
+            label: 'Bank importers',
+        },
     ];
 
     toggleCollapse(): void {

@@ -12,6 +12,11 @@
 
 
 export interface BankImporterNoID { 
-    id?: string;
+    name: string;
+    description?: string;
+    /**
+     * Stores extra data about bank importer. For example could hold \"bank account number\" to be able to distinguish between different bank accounts, or it could hold token for bank API
+     */
+    extra?: string;
 }
 
