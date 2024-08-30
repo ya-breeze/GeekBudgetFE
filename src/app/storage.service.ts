@@ -1,7 +1,40 @@
 import { firstValueFrom } from 'rxjs';
-import { AuthService, UserService, AccountsService, CurrenciesService, Account, User, Currency, AccountNoID, CurrencyNoID } from './client';
+import {
+    AuthService,
+    UserService,
+    AccountsService,
+    CurrenciesService,
+    Account,
+    User,
+    Currency,
+    AccountNoID,
+    CurrencyNoID,
+    Transaction as NetworkTransaction,
+    TransactionsService,
+} from './client';
 import { Injectable } from '@angular/core';
 import { FullUserInfo } from './models/fullUserInfo';
+
+export interface Movement {
+    amount: number;
+    currency: Currency;
+    account: Account;
+}
+
+export interface Transaction {
+    id: string;
+    date: Date;
+    description?: string;
+    place?: string;
+    tags?: string[];
+    partnerName?: string;
+    partnerAccount?: string;
+    partnerInternalId?: string;
+    extra?: string;
+    unprocessedSources?: string;
+    externalIds?: string[];
+    movements: Movement[];
+}
 
 @Injectable({
     providedIn: 'root',
@@ -17,7 +50,8 @@ export class StorageService {
         protected authService: AuthService,
         protected userService: UserService,
         protected accountsService: AccountsService,
-        protected currenciesService: CurrenciesService
+        protected currenciesService: CurrenciesService,
+        protected transactionsService: TransactionsService
     ) {}
 
     async fetchToken(): Promise<string> {
@@ -190,4 +224,35 @@ export class StorageService {
         this.currenciesPromise = Promise.resolve(currencies);
     }
     //#endregion Currencies
+
+    //#region Transactions
+    async getTransactions(): Promise<Transaction[]> {
+        console.log('enter getTransactions()');
+        const token = await this.fetchToken();
+
+        const fullUserInfo = await this.getFullUser();
+
+        this.transactionsService.configuration.credentials['BearerAuth'] = token;
+        const transactions = (await firstValueFrom(this.transactionsService.getTransactions())).map((t: NetworkTransaction) => {
+            return {
+                ...t,
+                date: new Date(t.date),
+                movements: t.movements.map((m) => {
+                    return {
+                        amount: m.amount,
+                        currency: fullUserInfo.currencies.find((c) => c.id === m.currencyId) as Currency,
+                        account: fullUserInfo.accounts.find((a) => a.id === m.accountId) as Account,
+                    };
+                }),
+            };
+        });
+
+        transactions.sort((a, b) => {
+            return a.date.getTime() - b.date.getTime();
+        });
+
+        console.log('returning transactions');
+        return transactions;
+    }
+    //#endregion Transactions
 }

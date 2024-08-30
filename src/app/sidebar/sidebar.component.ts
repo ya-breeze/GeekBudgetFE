@@ -19,6 +19,11 @@ export class SidebarComponent {
             label: 'Dashboard',
         },
         {
+            routeLink: 'transactions',
+            icon: 'bi-receipt',
+            label: 'Transactions',
+        },
+        {
             routeLink: 'settings',
             icon: 'bi-gear',
             label: 'Settings',

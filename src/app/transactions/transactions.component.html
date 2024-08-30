@@ -1,0 +1,99 @@
+<h2>Transactions</h2>
+
+<div style="display: flex; align-items: baseline">
+    <button type="button" class="btn btn-outline-primary"><i class="bi-arrow-left-circle"></i></button>
+    <p-calendar [(ngModel)]="dateFrom" />
+    <button type="button" class="btn btn-outline-primary"><i class="bi-arrow-right-circle"></i></button>
+
+    <div class="btn-group" role="group" aria-label="Basic outlined example" style="margin-left: auto">
+        <button
+            type="button"
+            class="btn btn-outline-primary"
+            [ngClass]="dateRange === 0 ? 'active' : ''"
+            (click)="onRangeChange(DateRange.DAY)"
+        >
+            Day
+        </button>
+        <button
+            type="button"
+            class="btn btn-outline-primary"
+            [ngClass]="dateRange === 1 ? 'active' : ''"
+            (click)="onRangeChange(DateRange.WEEK)"
+        >
+            Week
+        </button>
+        <button
+            type="button"
+            class="btn btn-outline-primary"
+            [ngClass]="dateRange === 2 ? 'active' : ''"
+            (click)="onRangeChange(DateRange.MONTH)"
+        >
+            Month
+        </button>
+    </div>
+
+    <div style="margin-left: auto">
+        <p-inputGroup>
+            <p-inputSwitch [(ngModel)]="showExpenses" />Expenses <p-inputSwitch [(ngModel)]="showIncomes" />Incomes
+        </p-inputGroup>
+    </div>
+</div>
+
+@if (transactions) {
+<p-table
+    [value]="transactions"
+    styleClass="p-datatable-striped"
+    selectionMode="single"
+    [(selection)]="selected"
+    (onRowSelect)="onRowSelect($event)"
+    [tableStyle]="{ 'min-width': '80%' }"
+>
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="text-align: right; text-align: center">Date</th>
+            <th style="text-align: center">Counter account</th>
+            <th style="text-align: center">Description</th>
+            <th style="text-align: center">Amount</th>
+            <th style="padding-right: 1rem">
+                <div style="display: flex">
+                    <button
+                        (click)="addCurrency()"
+                        class="btn icon add-transaction"
+                        data-toggle="tooltip"
+                        title="Add currency"
+                        style="margin-left: auto"
+                    >
+                        <i class="bi-plus-circle see-currency-transactions"></i>
+                    </button>
+                </div>
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+        <tr [pSelectableRow]="product">
+            <td style="text-align: right">{{ product.date | date : "yyyy/MM/dd HH:mm:ss" }}</td>
+            <td>
+                {{ product.movements[0].account.name }}
+            </td>
+            <td>{{ product.description }}</td>
+            <td>
+                {{ product.movements[0].amount }}
+                {{ product.movements[0].currency.name }}
+            </td>
+            <td style="padding-right: 1rem">
+                <div style="display: flex">
+                    <button
+                        (click)="deleteCurrency(product.id)"
+                        class="btn icon delete-transaction"
+                        data-toggle="tooltip"
+                        title="Delete currency"
+                        style="margin-left: auto"
+                    >
+                        <i class="bi-x-circle delete-currency"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+} @else { Loading... }
