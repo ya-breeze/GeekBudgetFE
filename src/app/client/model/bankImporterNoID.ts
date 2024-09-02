@@ -10,11 +10,16 @@
  * Do not edit the class manually.
  */
 import { BankImporterNoIDLastImportsInner } from './bankImporterNoIDLastImportsInner';
+import { BankImporterNoIDMappingsInner } from './bankImporterNoIDMappingsInner';
 
 
 export interface BankImporterNoID { 
     name: string;
     description?: string;
+    /**
+     * ID of account which is used to store transactions from this bank importer
+     */
+    accountId: string;
     /**
      * Stores extra data about bank importer. For example could hold \"bank account number\" to be able to distinguish between different bank accounts, or it could hold token for bank API
      */
@@ -22,11 +27,27 @@ export interface BankImporterNoID {
     /**
      * Type of bank importer. It\'s used to distinguish between different banks. For example, FIO bank or KB bank.
      */
-    type?: string;
+    type?: BankImporterNoID.TypeEnum;
     /**
      * Date of last successful import.
      */
     lastSuccessfulImport?: string;
+    /**
+     * List of last imports. It could be shown to user to explain what was imported recently
+     */
     lastImports?: Array<BankImporterNoIDLastImportsInner>;
+    /**
+     * List of mappings which are used to enrich transactions with additional tags
+     */
+    mappings?: Array<BankImporterNoIDMappingsInner>;
 }
+export namespace BankImporterNoID {
+    export type TypeEnum = 'fio' | 'kb' | 'revolut';
+    export const TypeEnum = {
+        Fio: 'fio' as TypeEnum,
+        Kb: 'kb' as TypeEnum,
+        Revolut: 'revolut' as TypeEnum
+    };
+}
+
 

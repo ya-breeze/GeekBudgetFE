@@ -275,5 +275,21 @@ export class StorageService {
         this.bankImportersService.configuration.credentials['BearerAuth'] = token;
         return firstValueFrom(this.bankImportersService.fetchBankImporter(id));
     }
+    async upsertBankImporter(selected: BankImporter | undefined): Promise<BankImporter> {
+        if (!selected) {
+            throw new Error('BankImporter is undefined');
+        }
+
+        const { id, ...rest } = selected;
+        if (id) {
+            console.log('upsertBankImporter', selected);
+            const token = await this.fetchToken();
+            this.bankImportersService.configuration.credentials['BearerAuth'] = token;
+            const res = await firstValueFrom(this.bankImportersService.updateBankImporter(selected.id, rest));
+
+            return res;
+        }
+        throw new Error('Method not implemented.');
+    }
     //#endregion BankImporters
 }

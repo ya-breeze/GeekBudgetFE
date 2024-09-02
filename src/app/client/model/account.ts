@@ -9,6 +9,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { BankAccountInfo } from './bankAccountInfo';
 
 
 export interface Account { 
@@ -16,6 +17,7 @@ export interface Account {
     name: string;
     description?: string;
     type: Account.TypeEnum;
+    bankInfo?: BankAccountInfo;
 }
 export namespace Account {
     export type TypeEnum = 'expense' | 'income' | 'asset';

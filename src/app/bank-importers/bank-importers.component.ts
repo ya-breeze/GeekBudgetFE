@@ -55,7 +55,7 @@ export class BankImportersComponent implements OnInit {
         this.modalVisible = false;
 
         console.log('onSaveModal', this.selected);
-        const created = await this.storage.upsertCurrency(this.selected);
+        const created = await this.storage.upsertBankImporter(this.selected);
         console.log('Currency stored', created);
         await this.updateBankImporters();
     }

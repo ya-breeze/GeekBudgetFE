@@ -9,12 +9,14 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { BankAccountInfo } from './bankAccountInfo';
 
 
 export interface AccountNoID { 
     name: string;
     description?: string;
     type: AccountNoID.TypeEnum;
+    bankInfo?: BankAccountInfo;
 }
 export namespace AccountNoID {
     export type TypeEnum = 'expense' | 'income' | 'asset';
