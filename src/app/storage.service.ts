@@ -47,6 +47,8 @@ export class StorageService {
     private accountsPromise: Promise<Account[]> | undefined;
     private userPromise: Promise<User> | undefined;
     private currenciesPromise: Promise<Currency[]> | undefined;
+    private unknownAccount: Account;
+    private unknownCurrency: Currency;
 
     constructor(
         protected authService: AuthService,
@@ -55,7 +57,18 @@ export class StorageService {
         protected currenciesService: CurrenciesService,
         protected transactionsService: TransactionsService,
         protected bankImportersService: BankImportersService
-    ) {}
+    ) {
+        this.unknownAccount = {
+            id: '',
+            name: 'Unknown',
+            type: 'expense',
+        };
+
+        this.unknownCurrency = {
+            id: '',
+            name: 'Unknown',
+        };
+    }
 
     async fetchToken(): Promise<string> {
         if (this.token) {
@@ -243,8 +256,8 @@ export class StorageService {
                 movements: t.movements.map((m) => {
                     return {
                         amount: m.amount,
-                        currency: fullUserInfo.currencies.find((c) => c.id === m.currencyId) as Currency,
-                        account: fullUserInfo.accounts.find((a) => a.id === m.accountId) as Account,
+                        currency: (fullUserInfo.currencies.find((c) => c.id === m.currencyId) as Currency) || this.unknownCurrency,
+                        account: (fullUserInfo.accounts.find((a) => a.id === m.accountId) as Account) || this.unknownAccount,
                     };
                 }),
             };
