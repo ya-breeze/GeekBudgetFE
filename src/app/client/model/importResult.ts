@@ -11,7 +11,7 @@
  */
 
 
-export interface BankImporterNoIDLastImportsInner { 
+export interface ImportResult { 
     /**
      * Date of import
      */
@@ -19,13 +19,13 @@ export interface BankImporterNoIDLastImportsInner {
     /**
      * Status of import
      */
-    status?: BankImporterNoIDLastImportsInner.StatusEnum;
+    status?: ImportResult.StatusEnum;
     /**
      * Details of import
      */
     description?: string;
 }
-export namespace BankImporterNoIDLastImportsInner {
+export namespace ImportResult {
     export type StatusEnum = 'success' | 'error';
     export const StatusEnum = {
         Success: 'success' as StatusEnum,

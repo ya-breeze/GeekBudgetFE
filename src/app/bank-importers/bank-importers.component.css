@@ -35,3 +35,13 @@ td {
     color: red;
     cursor: pointer;
 }
+
+.fetch-transactions {
+    color: gray;
+    cursor: pointer;
+}
+
+.fetch-transactions:hover {
+    color: #14a83e;
+    cursor: pointer;
+}

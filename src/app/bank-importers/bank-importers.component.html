@@ -1,6 +1,7 @@
 <h2>Bank importers</h2>
 
 @if (bankImporters) {
+<p-toast />
 <p-table
     [value]="bankImporters"
     styleClass="p-datatable-striped"
@@ -37,6 +38,15 @@
             <td style="padding-right: 1rem">
                 <div style="display: flex">
                     <button
+                        (click)="onFetch(product.id)"
+                        class="btn icon fetch-transactions"
+                        data-toggle="tooltip"
+                        title="Fetch transactions"
+                    >
+                        <i class="bi-cloud-download fetch-transactions"></i>
+                    </button>
+
+                    <button
                         (click)="deleteBankImporter(product.id)"
                         class="btn icon delete-bankimporter"
                         data-toggle="tooltip"
@@ -55,7 +65,6 @@
     <div style="padding: 2rem">
         <app-bank-importer [value]="selected" [showType]="false" [showSave]="false"></app-bank-importer>
         <div style="display: flex">
-            <p-button label="Fetch" severity="success" (onClick)="onFetch()" />
             <span style="margin-left: auto"></span>
             <p-button label="Cancel" severity="secondary" (onClick)="onCloseModal()" />
             <p-button label="Save" (onClick)="onSaveModal()" />

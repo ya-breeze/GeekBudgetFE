@@ -13,6 +13,7 @@ import {
     TransactionsService,
     BankImportersService,
     BankImporter,
+    ImportResult,
 } from './client';
 import { Injectable } from '@angular/core';
 import { FullUserInfo } from './models/fullUserInfo';
@@ -36,6 +37,9 @@ export interface Transaction {
     unprocessedSources?: string;
     externalIds?: string[];
     movements: Movement[];
+
+    getCounterAccounts(account: Account): Account[];
+    getAccountMovement(account: Account): Movement;
 }
 
 @Injectable({
@@ -260,6 +264,14 @@ export class StorageService {
                         account: (fullUserInfo.accounts.find((a) => a.id === m.accountId) as Account) || this.unknownAccount,
                     };
                 }),
+
+                getCounterAccounts(account: Account): Account[] {
+                    return this.movements.filter((m) => m.account.id !== account.id).map((m) => m.account);
+                },
+
+                getAccountMovement(account: Account): Movement {
+                    return this.movements.find((m) => m.account.id === account.id) as Movement;
+                },
             };
         });
 
@@ -281,7 +293,7 @@ export class StorageService {
         return firstValueFrom(this.bankImportersService.getBankImporters());
     }
 
-    async bankImporterFetch(id: string): Promise<string> {
+    async bankImporterFetch(id: string): Promise<ImportResult> {
         console.log('enter bankImporterFetch()');
         const token = await this.fetchToken();
 

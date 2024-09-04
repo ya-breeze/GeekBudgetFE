@@ -9,20 +9,28 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { BankImporterComponent } from '../bank-importer/bank-importer.component';
 import { copyObject } from '../utils/utils';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-bank-importers',
     standalone: true,
-    imports: [CommonModule, FormsModule, TableModule, ButtonModule, DialogModule, BankImporterComponent],
+    imports: [CommonModule, FormsModule, TableModule, ButtonModule, DialogModule, BankImporterComponent, ToastModule],
     templateUrl: './bank-importers.component.html',
     styleUrl: './bank-importers.component.css',
+    providers: [MessageService],
 })
 export class BankImportersComponent implements OnInit {
     bankImporters: BankImporter[] | undefined;
     selected: BankImporter | undefined;
     modalVisible = false;
 
-    constructor(private route: ActivatedRoute, private router: Router, private storage: StorageService) {}
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private storage: StorageService,
+        private messageService: MessageService
+    ) {}
 
     async ngOnInit() {
         await this.updateBankImporters();
@@ -69,12 +77,26 @@ export class BankImportersComponent implements OnInit {
         this.bankImporters = await this.storage.getBankImporters();
     }
 
-    onFetch() {
-        if (!this.selected?.id) {
-            console.error('No selected bank importer');
+    async onFetch(id: string) {
+        const bi = this.bankImporters?.find((b) => b.id === id);
+        if (!bi) {
+            console.error('No valid bank importer ID is provided');
             return;
         }
 
-        this.storage.bankImporterFetch(this.selected.id);
+        console.log('onFetch', bi.name);
+        this.messageService.add({
+            severity: 'info',
+            summary: `Importing transactions...`,
+            // detail: `Importer: ${bi.name}
+            // Account: ${bi.accountId}`,
+        });
+        const res = await this.storage.bankImporterFetch(id);
+        this.messageService.add({
+            severity: 'info',
+            summary: `Import finished with ${res.status}`,
+            detail: res.description,
+            life: 10000,
+        });
     }
 }

@@ -9,8 +9,8 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { BankImporterNoIDLastImportsInner } from './bankImporterNoIDLastImportsInner';
 import { BankImporterNoIDMappingsInner } from './bankImporterNoIDMappingsInner';
+import { ImportResult } from './importResult';
 
 
 export interface BankImporter { 
@@ -36,7 +36,7 @@ export interface BankImporter {
     /**
      * List of last imports. It could be shown to user to explain what was imported recently
      */
-    lastImports?: Array<BankImporterNoIDLastImportsInner>;
+    lastImports?: Array<ImportResult>;
     /**
      * List of mappings which are used to enrich transactions with additional tags
      */
