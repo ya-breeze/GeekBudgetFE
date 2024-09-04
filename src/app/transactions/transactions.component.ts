@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { StorageService, Transaction } from '../storage.service';
+import { StorageService, Transaction, Movement } from '../storage.service';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -203,5 +203,22 @@ export class TransactionsComponent implements OnInit {
                 showUnknowns: this.showUnknowns,
             },
         ]);
+    }
+
+    counterAccounts(t: Transaction): string {
+        if (!this.selectedAccount) {
+            return t.movements.map((m) => m.account.name).join(', ');
+        }
+
+        const accounts = t.getCounterAccounts(this.selectedAccount).map((a) => a.name);
+        return accounts.join(', ');
+    }
+
+    accountMovement(t: Transaction): Movement {
+        if (!this.selectedAccount) {
+            return t.movements[0];
+        }
+
+        return t.getAccountMovement(this.selectedAccount);
     }
 }
