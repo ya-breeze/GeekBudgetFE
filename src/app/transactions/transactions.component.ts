@@ -39,11 +39,13 @@ enum DateRange {
     styleUrl: './transactions.component.css',
 })
 export class TransactionsComponent implements OnInit {
+    TypeEnum = Account.TypeEnum;
+
     DateRange = DateRange;
     dateFrom = new Date();
     showExpenses = true;
     showIncomes = true;
-    dateRange = DateRange.WEEK;
+    dateRange = DateRange.MONTH;
     transactions: Transaction[] = [];
     selected: Transaction | undefined;
     meterGroupData: MeterItem[] | undefined;
@@ -59,7 +61,10 @@ export class TransactionsComponent implements OnInit {
             this.accounts = this.fullUser?.accounts;
 
             const from = params.get('from');
-            this.dateFrom = from ? new Date(from) : new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
+            const today = new Date();
+            this.dateFrom = from ? new Date(from) : new Date(today.getFullYear(), today.getMonth(), 1);
+            // this.dateFrom = startOfMonthInTimezone(this.dateFrom);
+            //new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
             console.log('from', this.dateFrom);
 
             const account = params.get('account');
@@ -74,9 +79,20 @@ export class TransactionsComponent implements OnInit {
 
     async updateData() {
         console.log('updateData');
-        this.transactions = await this.storage.getTransactions(this.dateFrom);
+        const dateTo = new Date(this.dateFrom.getFullYear(), this.dateFrom.getMonth() + 1, 1);
+        this.transactions = await this.storage.getTransactions(this.dateFrom, dateTo);
         if (this.selectedAccount) {
             this.transactions = this.transactions.filter((t) => t.movements.some((m) => m.account.id === this.selectedAccount?.id));
+        }
+        if (!this.showExpenses) {
+            this.transactions = this.transactions.filter(
+                (t) => !t.movements.some((m) => m.account.type === Account.TypeEnum.Expense && m.account.id !== '')
+            );
+        }
+        if (!this.showIncomes) {
+            this.transactions = this.transactions.filter(
+                (t) => !t.movements.some((m) => m.account.type === Account.TypeEnum.Income && m.account.id !== '')
+            );
         }
         this.meterGroupData = this.updateMeterGroupData();
     }
@@ -136,7 +152,40 @@ export class TransactionsComponent implements OnInit {
     }
 
     onAccountChange() {
-        this.router.navigate(['/transactions', { account: this.selectedAccount?.id }]);
+        this.router.navigate(['/transactions', { account: this.selectedAccount?.id, from: this.dateFrom.toISOString() }]);
         this.updateData();
+    }
+
+    onNextDate() {
+        const dateTo = new Date(this.dateFrom.getFullYear(), this.dateFrom.getMonth() + 1, 1);
+        this.router.navigate(['/transactions', { account: this.selectedAccount?.id, from: dateTo.toISOString() }]);
+    }
+    onPreviousDate() {
+        const dateTo = new Date(this.dateFrom.getFullYear(), this.dateFrom.getMonth() - 1, 1);
+        this.router.navigate(['/transactions', { account: this.selectedAccount?.id, from: dateTo.toISOString() }]);
+    }
+
+    onShowIncomes() {
+        this.router.navigate([
+            '/transactions',
+            {
+                account: this.selectedAccount?.id,
+                from: this.dateFrom.toISOString(),
+                showIncomes: this.showIncomes,
+                showExpenses: this.showExpenses,
+            },
+        ]);
+    }
+
+    onShowExpenses() {
+        this.router.navigate([
+            '/transactions',
+            {
+                account: this.selectedAccount?.id,
+                from: this.dateFrom.toISOString(),
+                showIncomes: this.showIncomes,
+                showExpenses: this.showExpenses,
+            },
+        ]);
     }
 }

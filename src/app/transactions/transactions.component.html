@@ -1,9 +1,19 @@
-<h2>Transactions</h2>
+<h2>
+    Transactions for
+    <p-dropdown
+        [options]="accounts"
+        [(ngModel)]="selectedAccount"
+        [checkmark]="true"
+        optionLabel="name"
+        placeholder="Select an account"
+        (onChange)="onAccountChange()"
+    />
+</h2>
 
 <div style="display: flex; align-items: baseline">
-    <button type="button" class="btn btn-outline-primary"><i class="bi-arrow-left-circle"></i></button>
-    <p-calendar [(ngModel)]="dateFrom" (onSelect)="onCalendarSelect()" />
-    <button type="button" class="btn btn-outline-primary"><i class="bi-arrow-right-circle"></i></button>
+    <button type="button" class="btn btn-outline-primary" (click)="onPreviousDate()"><i class="bi-arrow-left-circle"></i></button>
+    <p-calendar [(ngModel)]="dateFrom" (onSelect)="onCalendarSelect()" view="month" dateFormat="MM yy" />
+    <button type="button" class="btn btn-outline-primary" (click)="onNextDate()"><i class="bi-arrow-right-circle"></i></button>
 
     <div class="btn-group" role="group" aria-label="Basic outlined example" style="margin-left: auto">
         <button
@@ -32,17 +42,10 @@
         </button>
     </div>
 
-    <p-dropdown
-        [options]="accounts"
-        [(ngModel)]="selectedAccount"
-        [checkmark]="true"
-        optionLabel="name"
-        placeholder="Select an account"
-        (onChange)="onAccountChange()"
-    />
     <div style="margin-left: auto">
         <p-inputGroup>
-            <p-inputSwitch [(ngModel)]="showExpenses" />Expenses <p-inputSwitch [(ngModel)]="showIncomes" />Incomes
+            <p-inputSwitch [(ngModel)]="showExpenses" (onChange)="onShowExpenses()" />Expenses
+            <p-inputSwitch [(ngModel)]="showIncomes" (onChange)="onShowIncomes()" />Incomes
         </p-inputGroup>
     </div>
 </div>
@@ -80,7 +83,7 @@
     </ng-template>
     <ng-template pTemplate="body" let-product>
         <tr [pSelectableRow]="product">
-            <td style="text-align: right">{{ product.date | date : "yyyy/MM/dd HH:mm:ss" }}</td>
+            <td style="text-align: right">{{ product.date | date : "dd MMM yyyy" }}</td>
             <td>
                 {{ product.movements[0].account.name }}
             </td>
