@@ -15,7 +15,7 @@
     <p-calendar [(ngModel)]="dateFrom" (onSelect)="onCalendarSelect()" view="month" dateFormat="MM yy" />
     <button type="button" class="btn btn-outline-primary" (click)="onNextDate()"><i class="bi-arrow-right-circle"></i></button>
 
-    <div class="btn-group" role="group" aria-label="Basic outlined example" style="margin-left: auto">
+    <!-- <div class="btn-group" role="group" aria-label="Basic outlined example" style="margin-left: auto">
         <button
             type="button"
             class="btn btn-outline-primary"
@@ -40,10 +40,11 @@
         >
             Month
         </button>
-    </div>
+    </div> -->
 
     <div style="margin-left: auto">
         <p-inputGroup>
+            <p-inputSwitch [(ngModel)]="showUnknowns" (onChange)="onShowUnknowns()" />Unknowns
             <p-inputSwitch [(ngModel)]="showExpenses" (onChange)="onShowExpenses()" />Expenses
             <p-inputSwitch [(ngModel)]="showIncomes" (onChange)="onShowIncomes()" />Incomes
         </p-inputGroup>
@@ -85,12 +86,12 @@
         <tr [pSelectableRow]="product">
             <td style="text-align: right">{{ product.date | date : "dd MMM yyyy" }}</td>
             <td>
-                {{ product.movements[0].account.name }}
+                {{ product.getCounterAccounts(selectedAccount)[0].name }}
             </td>
             <td>{{ product.description }}</td>
             <td style="min-width: 10rem">
-                {{ product.movements[0].amount }}
-                {{ product.movements[0].currency.name }}
+                {{ product.getAccountMovement(selectedAccount).amount | number : "1.2-2" }}
+                {{ product.getAccountMovement(selectedAccount).currency.name }}
             </td>
             <td style="padding-right: 1rem">
                 <div style="display: flex">

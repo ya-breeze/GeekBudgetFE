@@ -45,6 +45,7 @@ export class TransactionsComponent implements OnInit {
     dateFrom = new Date();
     showExpenses = true;
     showIncomes = true;
+    showUnknowns = true;
     dateRange = DateRange.MONTH;
     transactions: Transaction[] = [];
     selected: Transaction | undefined;
@@ -93,6 +94,9 @@ export class TransactionsComponent implements OnInit {
             this.transactions = this.transactions.filter(
                 (t) => !t.movements.some((m) => m.account.type === Account.TypeEnum.Income && m.account.id !== '')
             );
+        }
+        if (!this.showUnknowns) {
+            this.transactions = this.transactions.filter((t) => !t.movements.some((m) => m.account.id === ''));
         }
         this.meterGroupData = this.updateMeterGroupData();
     }
@@ -185,6 +189,18 @@ export class TransactionsComponent implements OnInit {
                 from: this.dateFrom.toISOString(),
                 showIncomes: this.showIncomes,
                 showExpenses: this.showExpenses,
+            },
+        ]);
+    }
+    onShowUnknowns() {
+        this.router.navigate([
+            '/transactions',
+            {
+                account: this.selectedAccount?.id,
+                from: this.dateFrom.toISOString(),
+                showIncomes: this.showIncomes,
+                showExpenses: this.showExpenses,
+                showUnknowns: this.showUnknowns,
             },
         ]);
     }
