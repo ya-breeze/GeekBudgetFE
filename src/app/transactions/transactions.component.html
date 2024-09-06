@@ -84,8 +84,8 @@
     </ng-template>
     <ng-template pTemplate="body" let-product>
         <tr [pSelectableRow]="product">
-            <td style="text-align: right">{{ product.date | date : "dd MMM yyyy" }}</td>
-            <td>
+            <td style="text-align: right; min-width: 10rem">{{ product.date | date : "dd MMM yyyy" }}</td>
+            <td style="min-width: 10rem">
                 {{ counterAccounts(product) }}
             </td>
             <td>{{ product.description }}</td>

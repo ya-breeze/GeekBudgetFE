@@ -19,6 +19,11 @@ export class SidebarComponent {
             label: 'Dashboard',
         },
         {
+            routeLink: 'unprocessed_transactions',
+            icon: 'bi-question-diamond',
+            label: 'Unprocessed transactions',
+        },
+        {
             routeLink: 'transactions',
             icon: 'bi-receipt',
             label: 'Transactions',
@@ -42,6 +47,11 @@ export class SidebarComponent {
             routeLink: 'bank_importers',
             icon: 'bi-cloud-download',
             label: 'Bank importers',
+        },
+        {
+            routeLink: 'matchers',
+            icon: 'bi-search',
+            label: 'Matchers',
         },
     ];
 

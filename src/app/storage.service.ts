@@ -14,6 +14,10 @@ import {
     BankImportersService,
     BankImporter,
     ImportResult,
+    UnprocessedTransactionsService,
+    UnprocessedTransaction,
+    MatchersService,
+    Matcher,
 } from './client';
 import { Injectable } from '@angular/core';
 import { FullUserInfo } from './models/fullUserInfo';
@@ -60,7 +64,9 @@ export class StorageService {
         protected accountsService: AccountsService,
         protected currenciesService: CurrenciesService,
         protected transactionsService: TransactionsService,
-        protected bankImportersService: BankImportersService
+        protected bankImportersService: BankImportersService,
+        protected unprocessedTransactionsService: UnprocessedTransactionsService,
+        protected matchersService: MatchersService
     ) {
         this.unknownAccount = {
             id: '',
@@ -317,4 +323,24 @@ export class StorageService {
         throw new Error('Method not implemented.');
     }
     //#endregion BankImporters
+
+    //#region UnprocessedTransactions
+    async getUnprocessedTransactions(): Promise<UnprocessedTransaction[]> {
+        console.log('enter getUnprocessedTransactions()');
+        const token = await this.fetchToken();
+
+        this.unprocessedTransactionsService.configuration.credentials['BearerAuth'] = token;
+        return firstValueFrom(this.unprocessedTransactionsService.getUnprocessedTransactions());
+    }
+    //#endregion UnprocessedTransactions
+
+    //#region Matchers
+    async getMatchers(): Promise<Matcher[]> {
+        console.log('enter getMatchers()');
+        const token = await this.fetchToken();
+
+        this.matchersService.configuration.credentials['BearerAuth'] = token;
+        return firstValueFrom(this.matchersService.getMatchers());
+    }
+    //#endregion Matchers
 }
