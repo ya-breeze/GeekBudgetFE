@@ -122,6 +122,10 @@ export class TransactionsComponent implements OnInit {
     }
 
     updateMeterGroupData(): MeterItem[] {
+        if (!this.selectedAccount) {
+            return [];
+        }
+
         const colorList = [
             '#B3B31A',
             '#00E680',
@@ -140,19 +144,35 @@ export class TransactionsComponent implements OnInit {
             '#99E6E6',
             '#6666FF',
         ];
-        let usedColor = 0;
         const res: MeterItem[] = [];
 
-        this.transactions.map((t) => {
-            // const amount = t.movements.reduce((acc, m) => acc + m.amount, 0);
-            res.push({
-                label: t.description,
-                value: usedColor,
-                color: colorList[++usedColor],
-            });
+        let totalSum = 0.0;
+        const accountSummaries = this.transactions.flatMap((t) => {
+            return t.movements
+                .filter((m) => m.account.id !== this.selectedAccount?.id)
+                .map((m) => ({
+                    account: m.account.name,
+                    amount: m.amount,
+                }));
         });
+        for (const item of accountSummaries) {
+            const usedColor = res.findIndex((m) => m.label === item.account);
+            if (usedColor >= 0) {
+                if (!res[usedColor].value) {
+                    throw new Error('Internal error - value is not set');
+                }
+                res[usedColor].value += item.amount;
+            } else {
+                res.push({
+                    label: item.account,
+                    value: item.amount,
+                    color: colorList[res.length],
+                });
+            }
+            totalSum += item.amount;
+        }
 
-        return res;
+        return res.filter((m) => m.value !== 0).map((m) => ({ ...m, value: (m?.value ?? 0 / totalSum) * 100 }));
     }
 
     onAccountChange() {
