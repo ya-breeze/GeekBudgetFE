@@ -1,0 +1,23 @@
+@if (transaction) {
+<form>
+    <div class="mb-3">
+        <label for="date" class="form-label">Date</label>
+        <p-calendar id="date" name="date" [(ngModel)]="transaction.date" dateFormat="dd MM yy" />
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <input
+            type="text"
+            class="form-control"
+            id="description"
+            [(ngModel)]="transaction.description"
+            name="description"
+            required
+            autofocus
+        />
+    </div>
+    @if (showSave) {
+    <button type="submit" class="btn btn-primary">Save</button>
+    }
+</form>
+} @else { Loading... }

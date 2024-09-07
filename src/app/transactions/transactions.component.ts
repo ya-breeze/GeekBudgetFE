@@ -13,6 +13,10 @@ import { MeterGroupModule, MeterItem } from 'primeng/metergroup';
 import { DropdownModule } from 'primeng/dropdown';
 import { Account } from '../client';
 import { FullUserInfo } from '../models/fullUserInfo';
+import { TransactionComponent } from '../transaction/transaction.component';
+import { DialogModule } from 'primeng/dialog';
+import { copyObject } from '../utils/utils';
+import { TagModule } from 'primeng/tag';
 
 enum DateRange {
     DAY,
@@ -34,14 +38,18 @@ enum DateRange {
         TableModule,
         MeterGroupModule,
         DropdownModule,
+        TransactionComponent,
+        DialogModule,
+        TagModule,
     ],
     templateUrl: './transactions.component.html',
     styleUrl: './transactions.component.css',
 })
 export class TransactionsComponent implements OnInit {
     TypeEnum = Account.TypeEnum;
-
     DateRange = DateRange;
+
+    modalVisible = false;
     dateFrom = new Date();
     showExpenses = true;
     showIncomes = true;
@@ -110,10 +118,20 @@ export class TransactionsComponent implements OnInit {
     }
 
     onRowSelect($event: TableRowSelectEvent) {
-        throw new Error('Method not implemented.');
+        console.log($event);
+        if (this.modalVisible) {
+            console.log('ignore onRowSelect');
+            return;
+        }
+
+        console.log('onRowSelect');
+        this.router.navigate(['/transactions', { id: $event.data?.id }]);
+
+        this.selected = copyObject($event.data);
+        this.modalVisible = true;
     }
 
-    deleteTransaction(arg0: any) {
+    deleteTransaction(id: string) {
         throw new Error('Method not implemented.');
     }
 
@@ -240,5 +258,20 @@ export class TransactionsComponent implements OnInit {
         }
 
         return t.getAccountMovement(this.selectedAccount);
+    }
+
+    onSaveModal() {
+        console.log('onSaveModal');
+        this.modalVisible = false;
+
+        console.log('onSaveModal', this.selected);
+        // const created = await this.storage.upsertCurrency(this.selected);
+        // console.log('Currency stored', created);
+        // await this.updateCurrencies();
+    }
+
+    onCloseModal() {
+        console.log('onCloseModal');
+        this.modalVisible = false;
     }
 }
