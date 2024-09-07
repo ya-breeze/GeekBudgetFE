@@ -1,23 +1,80 @@
 @if (transaction) {
-<form>
-    <div class="mb-3">
+<div class="row">
+    <div class="col-5">
         <label for="date" class="form-label">Date</label>
-        <p-calendar id="date" name="date" [(ngModel)]="transaction.date" dateFormat="dd MM yy" />
+        <p-calendar id="date" [(ngModel)]="transaction.date" dateFormat="dd MM yy" />
     </div>
-    <div class="mb-3">
+    <div class="col">
+        <label for="place" class="form-label">Place</label>
+        <input id="place" type="text" pInputText [(ngModel)]="transaction.place" (onBlur)="onChange()" />
+    </div>
+</div>
+<div class="row">
+    <div class="col">
         <label for="description" class="form-label">Description</label>
         <input
             type="text"
             class="form-control"
             id="description"
             [(ngModel)]="transaction.description"
-            name="description"
+            (onBlur)="onChange()"
             required
             autofocus
         />
     </div>
-    @if (showSave) {
-    <button type="submit" class="btn btn-primary">Save</button>
-    }
-</form>
-} @else { Loading... }
+</div>
+<div class="row">
+    <div class="col">
+        <label for="tags" class="form-label">Tags</label>
+        <p-chips ngDefaultControl id="tags" [(ngModel)]="transaction.tags" (onBlur)="onChange()" [style]="{ width: '80%' }" />
+    </div>
+</div>
+@for (m of transaction.movements; track $index) {
+<div class="row">
+    <div class="col">
+        <!-- <label for="account" class="form-label">Account</label> -->
+        <p-dropdown
+            ngDefaultControl
+            id="account"
+            [options]="accounts"
+            [(ngModel)]="m.account.id"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select an account"
+            (onBlur)="onChange()"
+        />
+    </div>
+    <div class="col">
+        <!-- <label for="amount" class="form-label">Amount</label> -->
+        <!-- <input ngDefaultControl type="number" class="form-control" id="amount" [(ngModel)]="m.amount" required /> -->
+        <p-inputNumber
+            [(ngModel)]="m.amount"
+            mode="decimal"
+            inputId="amount"
+            [useGrouping]="false"
+            (onBlur)="onChange()"
+            [style]="{ width: '10rem' }"
+        />
+    </div>
+    <div class="col">
+        <!-- <label for="currency" class="form-label">Currency</label> -->
+        <p-dropdown
+            ngDefaultControl
+            id="currency"
+            [options]="currencies"
+            [(ngModel)]="m.currency.id"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select a currency"
+            (onBlur)="onChange()"
+        />
+    </div>
+</div>
+
+}
+<p-messages [(value)]="messages" [enableService]="false" [closable]="false" />
+
+<div class="div" style="min-height: 250px"></div>
+@if (showSave) {
+<button type="submit" class="btn btn-primary">Save</button>
+} } @else { Loading... }

@@ -116,9 +116,15 @@
 </p-table>
 
 <p-dialog header="Transaction" [modal]="true" [(visible)]="modalVisible" [style]="{ width: '50rem', padding: '2rem' }">
-    <div style="padding: 2rem">
-        <app-transaction [transaction]="selected" [showType]="false" [showSave]="false"></app-transaction>
-        <div class="flex justify-content-end gap-2">
+    <div>
+        <app-transaction
+            [transaction]="selected"
+            [showType]="false"
+            [showSave]="false"
+            [accounts]="accounts"
+            [currencies]="currencies"
+        ></app-transaction>
+        <div class="flex">
             <p-button label="Cancel" severity="secondary" (onClick)="onCloseModal()" />
             <p-button label="Save" (onClick)="onSaveModal()" />
         </div>

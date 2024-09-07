@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { StorageService, Transaction, Movement } from '../storage.service';
+import { StorageService } from '../storage.service';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { FormsModule } from '@angular/forms';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -11,11 +11,11 @@ import { CommonModule } from '@angular/common';
 import { TableModule, TableRowSelectEvent } from 'primeng/table';
 import { MeterGroupModule, MeterItem } from 'primeng/metergroup';
 import { DropdownModule } from 'primeng/dropdown';
-import { Account } from '../client';
+import { Account, Currency } from '../client';
 import { FullUserInfo } from '../models/fullUserInfo';
 import { TransactionComponent } from '../transaction/transaction.component';
 import { DialogModule } from 'primeng/dialog';
-import { copyObject } from '../utils/utils';
+import { copyObject, getAccountMovement, getCounterAccounts, Movement, Transaction } from '../utils/utils';
 import { TagModule } from 'primeng/tag';
 
 enum DateRange {
@@ -61,6 +61,7 @@ export class TransactionsComponent implements OnInit {
     accounts: Account[] | undefined;
     selectedAccount: Account | undefined;
     fullUser: FullUserInfo | undefined;
+    currencies: Currency[] | undefined;
 
     constructor(private route: ActivatedRoute, private router: Router, private storage: StorageService) {}
 
@@ -68,6 +69,7 @@ export class TransactionsComponent implements OnInit {
         this.route.paramMap.subscribe(async (params) => {
             this.fullUser = await this.storage.getFullUser();
             this.accounts = this.fullUser?.accounts;
+            this.currencies = this.fullUser?.currencies;
 
             const from = params.get('from');
             const today = new Date();
@@ -248,7 +250,7 @@ export class TransactionsComponent implements OnInit {
             return t.movements.map((m) => m.account.name).join(', ');
         }
 
-        const accounts = t.getCounterAccounts(this.selectedAccount).map((a) => a.name);
+        const accounts = getCounterAccounts(t, this.selectedAccount).map((a) => a.name);
         return accounts.join(', ');
     }
 
@@ -257,7 +259,7 @@ export class TransactionsComponent implements OnInit {
             return t.movements[0];
         }
 
-        return t.getAccountMovement(this.selectedAccount);
+        return getAccountMovement(t, this.selectedAccount);
     }
 
     onSaveModal() {

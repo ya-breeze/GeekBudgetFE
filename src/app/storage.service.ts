@@ -21,30 +21,7 @@ import {
 } from './client';
 import { Injectable } from '@angular/core';
 import { FullUserInfo } from './models/fullUserInfo';
-
-export interface Movement {
-    amount: number;
-    currency: Currency;
-    account: Account;
-}
-
-export interface Transaction {
-    id: string;
-    date: Date;
-    description?: string;
-    place?: string;
-    tags?: string[];
-    partnerName?: string;
-    partnerAccount?: string;
-    partnerInternalId?: string;
-    extra?: string;
-    unprocessedSources?: string;
-    externalIds?: string[];
-    movements: Movement[];
-
-    getCounterAccounts(account: Account): Account[];
-    getAccountMovement(account: Account): Movement;
-}
+import { Transaction } from './utils/utils';
 
 @Injectable({
     providedIn: 'root',
@@ -270,14 +247,6 @@ export class StorageService {
                         account: (fullUserInfo.accounts.find((a) => a.id === m.accountId) as Account) || this.unknownAccount,
                     };
                 }),
-
-                getCounterAccounts(account: Account): Account[] {
-                    return this.movements.filter((m) => m.account.id !== account.id).map((m) => m.account);
-                },
-
-                getAccountMovement(account: Account): Movement {
-                    return this.movements.find((m) => m.account.id === account.id) as Movement;
-                },
             };
         });
 
