@@ -9,7 +9,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessagesModule } from 'primeng/messages';
 import { Message } from 'primeng/api';
-import { checkTransaction, Transaction } from '../utils/utils';
+import { checkTransaction, Transaction, TransactionNoId } from '../utils/utils';
 
 @Component({
     selector: 'app-transaction',
@@ -28,18 +28,18 @@ import { checkTransaction, Transaction } from '../utils/utils';
     styleUrl: './transaction.component.css',
 })
 export class TransactionComponent {
-    private _transaction: Transaction | undefined;
+    private _transaction: Transaction | TransactionNoId | undefined;
     messages: Message[] = [];
 
     @Input() showType = true;
     @Input() showSave = true;
     @Input() accounts: Account[] | undefined;
     @Input() currencies: Currency[] | undefined;
-    @Input() set transaction(transaction: Transaction | undefined) {
+    @Input() set transaction(transaction: Transaction | TransactionNoId | undefined) {
         this._transaction = transaction;
         this.onChange();
     }
-    get transaction(): Transaction | undefined {
+    get transaction(): Transaction | TransactionNoId | undefined {
         return this._transaction;
     }
 

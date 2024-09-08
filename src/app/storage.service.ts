@@ -9,19 +9,20 @@ import {
     Currency,
     AccountNoID,
     CurrencyNoID,
+    TransactionNoID as NetworkTransactionNoId,
     Transaction as NetworkTransaction,
+    UnprocessedTransaction as NetworkUnprocessedTransaction,
     TransactionsService,
     BankImportersService,
     BankImporter,
     ImportResult,
     UnprocessedTransactionsService,
-    UnprocessedTransaction,
     MatchersService,
     Matcher,
 } from './client';
 import { Injectable } from '@angular/core';
 import { FullUserInfo } from './models/fullUserInfo';
-import { Transaction } from './utils/utils';
+import { Transaction, TransactionNoId, UnprocessedTransaction } from './utils/utils';
 
 @Injectable({
     providedIn: 'root',
@@ -237,17 +238,7 @@ export class StorageService {
                 this.transactionsService.getTransactions(undefined, undefined, undefined, dateFrom?.toISOString(), dateTo?.toISOString())
             )
         ).map((t: NetworkTransaction) => {
-            return {
-                ...t,
-                date: new Date(t.date),
-                movements: t.movements.map((m) => {
-                    return {
-                        amount: m.amount,
-                        currency: (fullUserInfo.currencies.find((c) => c.id === m.currencyId) as Currency) || this.unknownCurrency,
-                        account: (fullUserInfo.accounts.find((a) => a.id === m.accountId) as Account) || this.unknownAccount,
-                    };
-                }),
-            };
+            return this.networkTransactionToTransaction(t, fullUserInfo);
         });
 
         transactions.sort((a, b) => {
@@ -256,6 +247,33 @@ export class StorageService {
 
         console.log('returning transactions');
         return transactions;
+    }
+
+    networkTransactionToTransaction(t: NetworkTransaction, fullUserInfo: FullUserInfo): Transaction {
+        return {
+            ...t,
+            date: new Date(t.date),
+            movements: t.movements.map((m) => {
+                return {
+                    amount: m.amount,
+                    currency: (fullUserInfo.currencies.find((c) => c.id === m.currencyId) as Currency) || this.unknownCurrency,
+                    account: (fullUserInfo.accounts.find((a) => a.id === m.accountId) as Account) || this.unknownAccount,
+                };
+            }),
+        };
+    }
+    networkTransactionNoIdToTransactionNoId(t: NetworkTransactionNoId, fullUserInfo: FullUserInfo): TransactionNoId {
+        return {
+            ...t,
+            date: new Date(t.date),
+            movements: t.movements.map((m) => {
+                return {
+                    amount: m.amount,
+                    currency: (fullUserInfo.currencies.find((c) => c.id === m.currencyId) as Currency) || this.unknownCurrency,
+                    account: (fullUserInfo.accounts.find((a) => a.id === m.accountId) as Account) || this.unknownAccount,
+                };
+            }),
+        };
     }
     //#endregion Transactions
 
@@ -298,8 +316,26 @@ export class StorageService {
         console.log('enter getUnprocessedTransactions()');
         const token = await this.fetchToken();
 
+        const fullUserInfo = await this.getFullUser();
+
         this.unprocessedTransactionsService.configuration.credentials['BearerAuth'] = token;
-        return firstValueFrom(this.unprocessedTransactionsService.getUnprocessedTransactions());
+        return (await firstValueFrom(this.unprocessedTransactionsService.getUnprocessedTransactions())).map(
+            (t: NetworkUnprocessedTransaction) => {
+                return {
+                    transaction: this.networkTransactionToTransaction(t.transaction, fullUserInfo),
+                    matched: t.matched.map((m) => {
+                        return {
+                            matcherId: m.matcherId,
+                            transaction: this.networkTransactionNoIdToTransactionNoId(m.transaction, fullUserInfo),
+                        };
+                    }),
+                    duplicates: [],
+                    // t.duplicates.map((d) => {
+                    //     return this.networkTransactionToTransaction(d, fullUserInfo);
+                    // }),
+                };
+            }
+        );
     }
     //#endregion UnprocessedTransactions
 

@@ -6,8 +6,7 @@ export interface Movement {
     account: Account;
 }
 
-export interface Transaction {
-    id: string;
+export interface TransactionNoId {
     date: Date;
     description?: string;
     place?: string;
@@ -19,6 +18,21 @@ export interface Transaction {
     unprocessedSources?: string;
     externalIds?: string[];
     movements: Movement[];
+}
+
+export interface Transaction extends TransactionNoId {
+    id: string;
+}
+
+export interface MatcherAndTransaction {
+    matcherId: string;
+    transaction: TransactionNoId;
+}
+
+export interface UnprocessedTransaction {
+    transaction: Transaction;
+    matched: MatcherAndTransaction[];
+    duplicates: Transaction[];
 }
 
 export const copyObject = <T>(obj: T): T => JSON.parse(JSON.stringify(obj)) as T;
@@ -33,7 +47,7 @@ export function getAccountMovement(t: Transaction, account: Account): Movement {
     return t.movements.find((m) => m.account.id === account.id) as Movement;
 }
 
-export function checkTransaction(t: Transaction | undefined): string[] {
+export function checkTransaction(t: Transaction | TransactionNoId | undefined): string[] {
     if (!t) {
         return ['Transaction is undefined'];
     }
