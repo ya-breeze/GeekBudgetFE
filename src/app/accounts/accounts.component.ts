@@ -10,13 +10,16 @@ import { Subject } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { copyObject } from '../utils/utils';
 import { DialogModule } from 'primeng/dialog';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
     selector: 'app-accounts',
     standalone: true,
-    imports: [TreeTableModule, ButtonModule, AsyncPipe, AccountComponent, DialogModule],
+    imports: [TreeTableModule, ButtonModule, AsyncPipe, AccountComponent, DialogModule, ConfirmDialogModule],
     templateUrl: './accounts.component.html',
     styleUrl: './accounts.component.css',
+    providers: [ConfirmationService],
 })
 export class AccountsComponent implements OnInit {
     groupFakeID = 'unknown';
@@ -30,7 +33,12 @@ export class AccountsComponent implements OnInit {
 
     selectedAccounts$ = new Subject<TreeNode<Account>[]>();
 
-    constructor(private route: ActivatedRoute, private router: Router, private storage: StorageService) {}
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private storage: StorageService,
+        private confirmationService: ConfirmationService
+    ) {}
 
     async ngOnInit() {
         this.accounts = await this.storage.getAccounts();
@@ -73,13 +81,18 @@ export class AccountsComponent implements OnInit {
 
     async deleteAccount(accID: string) {
         console.log('deleteAccount', accID);
-        try {
-            await this.storage.deleteAccount(accID);
-            await this.updateSelectedAccounts();
-            console.log('Account deleted');
-        } catch (e) {
-            console.error(e);
-        }
+        this.confirmationService.confirm({
+            message: 'Are you sure that you want to delete account?',
+            accept: async () => {
+                try {
+                    await this.storage.deleteAccount(accID);
+                    await this.updateSelectedAccounts();
+                    console.log('Account deleted');
+                } catch (e) {
+                    console.error(e);
+                }
+            },
+        });
     }
 
     async updateSelectedAccounts() {

@@ -37,11 +37,13 @@
             ngDefaultControl
             id="account"
             [options]="accounts"
-            [(ngModel)]="m.account.id"
+            [(ngModel)]="m.accountId"
             optionLabel="name"
             optionValue="id"
             placeholder="Select an account"
             (onBlur)="onChange()"
+            [filter]="true"
+            filterBy="name"
         />
     </div>
     <div class="col">
@@ -62,11 +64,13 @@
             ngDefaultControl
             id="currency"
             [options]="currencies"
-            [(ngModel)]="m.currency.id"
+            [(ngModel)]="m.currencyId"
             optionLabel="name"
             optionValue="id"
             placeholder="Select a currency"
             (onBlur)="onChange()"
+            [filter]="true"
+            filterBy="name"
         />
     </div>
 </div>

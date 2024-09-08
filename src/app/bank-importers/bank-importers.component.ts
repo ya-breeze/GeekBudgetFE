@@ -10,15 +10,16 @@ import { ButtonModule } from 'primeng/button';
 import { BankImporterComponent } from '../bank-importer/bank-importer.component';
 import { copyObject } from '../utils/utils';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
     selector: 'app-bank-importers',
     standalone: true,
-    imports: [CommonModule, FormsModule, TableModule, ButtonModule, DialogModule, BankImporterComponent, ToastModule],
+    imports: [CommonModule, FormsModule, TableModule, ButtonModule, DialogModule, BankImporterComponent, ToastModule, ConfirmDialogModule],
     templateUrl: './bank-importers.component.html',
     styleUrl: './bank-importers.component.css',
-    providers: [MessageService],
+    providers: [MessageService, ConfirmationService],
 })
 export class BankImportersComponent implements OnInit {
     bankImporters: BankImporter[] | undefined;
@@ -29,7 +30,8 @@ export class BankImportersComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private storage: StorageService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private confirmationService: ConfirmationService
     ) {}
 
     async ngOnInit() {
@@ -40,8 +42,19 @@ export class BankImportersComponent implements OnInit {
         throw new Error('Method not implemented.');
     }
 
-    deleteBankImporter(arg0: any) {
-        throw new Error('Method not implemented.');
+    deleteBankImporter(id: string) {
+        this.confirmationService.confirm({
+            message: 'Are you sure that you want to delete bank importer?',
+            accept: async () => {
+                try {
+                    await this.storage.deleteBankImporter(id);
+                    await this.updateBankImporters();
+                    console.log('Bank importer deleted');
+                } catch (e) {
+                    console.error(e);
+                }
+            },
+        });
     }
 
     onRowSelect($event: TableRowSelectEvent) {

@@ -9,18 +9,16 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { Movement } from './movement';
 
 
 export interface MatcherNoID { 
     name: string;
-    outputDescription?: string;
-    amount?: number;
+    outputDescription: string;
+    outputAccountId: string;
     currencyRegExp?: string;
     partnerNameRegExp?: string;
     partnerAccountNumber?: string;
     descriptionRegExp?: string;
     extraRegExp?: string;
-    outputMovements?: Array<Movement>;
 }
 

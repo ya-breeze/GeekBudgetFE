@@ -6,6 +6,7 @@ import { GeekbudgetClientApiModule, GeekbudgetClientConfiguration, GeekbudgetCli
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
+import { ConfirmationService } from 'primeng/api';
 
 export function apiConfigFactory(): GeekbudgetClientConfiguration {
     const params: GeekbudgetClientConfigurationParameters = {
@@ -21,6 +22,11 @@ export const appConfig: ApplicationConfig = {
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes, withComponentInputBinding()),
         provideHttpClient(withInterceptorsFromDi()),
-        importProvidersFrom(GeekbudgetClientApiModule.forRoot(apiConfigFactory), BrowserModule, BrowserAnimationsModule),
+        importProvidersFrom(
+            GeekbudgetClientApiModule.forRoot(apiConfigFactory),
+            BrowserModule,
+            BrowserAnimationsModule,
+            ConfirmationService
+        ),
     ],
 };

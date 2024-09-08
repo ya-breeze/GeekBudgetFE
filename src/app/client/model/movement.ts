@@ -14,7 +14,7 @@
 export interface Movement { 
     amount: number;
     currencyId: string;
-    accountId: string;
+    accountId?: string;
     description?: string;
 }
 

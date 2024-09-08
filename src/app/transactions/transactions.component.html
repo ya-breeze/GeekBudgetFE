@@ -1,4 +1,4 @@
-<h2>
+<h5>
     Transactions for
     <p-dropdown
         [options]="accounts"
@@ -7,8 +7,10 @@
         optionLabel="name"
         placeholder="Select an account"
         (onChange)="onAccountChange()"
+        [filter]="true"
+        filterBy="name"
     />
-</h2>
+</h5>
 
 <div style="display: flex; align-items: baseline">
     <button type="button" class="btn btn-outline-primary" (click)="onPreviousDate()"><i class="bi-arrow-left-circle"></i></button>
@@ -96,7 +98,7 @@
             </td>
             <td style="min-width: 10rem">
                 {{ accountMovement(product).amount | number : "1.2-2" }}
-                {{ accountMovement(product).currency.name }}
+                {{ fullUser?.currencyMap?.get(accountMovement(product).currencyId)?.name }}
             </td>
             <td style="padding-right: 1rem">
                 <div style="display: flex">
@@ -132,4 +134,5 @@
 
     <div class="div" style="min-height: 250px"></div>
 </p-dialog>
+<p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
 } @else { Loading... }

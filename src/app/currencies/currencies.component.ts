@@ -7,20 +7,28 @@ import { StorageService } from '../storage.service';
 import { Currency } from '../client';
 import { CurrencyComponent } from '../currency/currency.component';
 import { copyObject } from '../utils/utils';
+import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
     selector: 'app-currencies',
     standalone: true,
-    imports: [TableModule, ButtonModule, DialogModule, CurrencyComponent],
+    imports: [TableModule, ButtonModule, DialogModule, CurrencyComponent, ConfirmDialogModule],
     templateUrl: './currencies.component.html',
     styleUrl: './currencies.component.css',
+    providers: [ConfirmationService],
 })
 export class CurrenciesComponent implements OnInit {
     currencies: Currency[] | undefined;
     selected: Currency | undefined;
     modalVisible = false;
 
-    constructor(private route: ActivatedRoute, private router: Router, private storage: StorageService) {}
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private storage: StorageService,
+        private confirmationService: ConfirmationService
+    ) {}
 
     async ngOnInit() {
         await this.updateCurrencies();
@@ -42,17 +50,22 @@ export class CurrenciesComponent implements OnInit {
 
     async deleteCurrency(id: string) {
         console.log('deleteCurrency', id);
-        try {
-            await this.storage.deleteCurrency(id);
-            await this.updateCurrencies();
-            console.log('Currency deleted');
-        } catch (e) {
-            console.error(e);
-        }
+        this.confirmationService.confirm({
+            message: 'Are you sure that you want to delete currency?',
+            accept: async () => {
+                try {
+                    await this.storage.deleteCurrency(id);
+                    await this.updateCurrencies();
+                    console.log('Currency deleted');
+                } catch (e) {
+                    console.error(e);
+                }
+            },
+        });
     }
 
     async updateCurrencies() {
-        this.currencies = await this.storage.getCurrencies();
+        this.currencies = (await this.storage.getCurrencies()).filter((c) => c.id !== '');
     }
 
     addCurrency() {

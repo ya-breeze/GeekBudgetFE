@@ -11,10 +11,9 @@
  */
 import { Movement } from './movement';
 
-
-export interface Transaction { 
+export interface Transaction {
     id: string;
-    date: string;
+    date: Date;
     description?: string;
     place?: string;
     tags?: Array<string>;
@@ -38,4 +37,3 @@ export interface Transaction {
     externalIds?: Array<string>;
     movements: Array<Movement>;
 }
-

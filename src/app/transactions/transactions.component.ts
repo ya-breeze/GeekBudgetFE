@@ -11,12 +11,14 @@ import { CommonModule } from '@angular/common';
 import { TableModule, TableRowSelectEvent } from 'primeng/table';
 import { MeterGroupModule, MeterItem } from 'primeng/metergroup';
 import { DropdownModule } from 'primeng/dropdown';
-import { Account, Currency } from '../client';
+import { Account, Currency, Movement, Transaction } from '../client';
 import { FullUserInfo } from '../models/fullUserInfo';
 import { TransactionComponent } from '../transaction/transaction.component';
 import { DialogModule } from 'primeng/dialog';
-import { copyObject, getAccountMovement, getCounterAccounts, Movement, Transaction } from '../utils/utils';
+import { copyObject, getAccountMovement, getCounterAccounts, stringToBoolean } from '../utils/utils';
 import { TagModule } from 'primeng/tag';
+import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 enum DateRange {
     DAY,
@@ -41,9 +43,11 @@ enum DateRange {
         TransactionComponent,
         DialogModule,
         TagModule,
+        ConfirmDialogModule,
     ],
     templateUrl: './transactions.component.html',
     styleUrl: './transactions.component.css',
+    providers: [ConfirmationService],
 })
 export class TransactionsComponent implements OnInit {
     TypeEnum = Account.TypeEnum;
@@ -63,7 +67,12 @@ export class TransactionsComponent implements OnInit {
     fullUser: FullUserInfo | undefined;
     currencies: Currency[] | undefined;
 
-    constructor(private route: ActivatedRoute, private router: Router, private storage: StorageService) {}
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private storage: StorageService,
+        private confirmationService: ConfirmationService
+    ) {}
 
     async ngOnInit() {
         this.route.paramMap.subscribe(async (params) => {
@@ -84,6 +93,11 @@ export class TransactionsComponent implements OnInit {
             // We change URL when user clicks, so don't update selected here to avoid issues
             // this.selected = params.get('id') ? this.accounts?.find((acc) => acc.id === params.get('id')) : undefined;
             // this.updateSelectedAccounts();
+
+            this.showUnknowns = stringToBoolean(params.get('showUnknowns') || 'true');
+            this.showExpenses = stringToBoolean(params.get('showExpenses') || 'true');
+            this.showIncomes = stringToBoolean(params.get('showIncomes') || 'true');
+
             await this.updateData();
         });
     }
@@ -93,20 +107,26 @@ export class TransactionsComponent implements OnInit {
         const dateTo = new Date(this.dateFrom.getFullYear(), this.dateFrom.getMonth() + 1, 1);
         this.transactions = await this.storage.getTransactions(this.dateFrom, dateTo);
         if (this.selectedAccount) {
-            this.transactions = this.transactions.filter((t) => t.movements.some((m) => m.account.id === this.selectedAccount?.id));
+            this.transactions = this.transactions.filter((t) => t.movements.some((m) => m.accountId === this.selectedAccount?.id));
         }
         if (!this.showExpenses) {
             this.transactions = this.transactions.filter(
-                (t) => !t.movements.some((m) => m.account.type === Account.TypeEnum.Expense && m.account.id !== '')
+                (t) =>
+                    !t.movements.some(
+                        (m) => m.accountId !== '' && this.fullUser?.accountMap.get(m.accountId || '')?.type === Account.TypeEnum.Expense
+                    )
             );
         }
         if (!this.showIncomes) {
             this.transactions = this.transactions.filter(
-                (t) => !t.movements.some((m) => m.account.type === Account.TypeEnum.Income && m.account.id !== '')
+                (t) =>
+                    !t.movements.some(
+                        (m) => m.accountId !== '' && this.fullUser?.accountMap.get(m.accountId || '')?.type === Account.TypeEnum.Income
+                    )
             );
         }
         if (!this.showUnknowns) {
-            this.transactions = this.transactions.filter((t) => !t.movements.some((m) => m.account.id === ''));
+            this.transactions = this.transactions.filter((t) => !t.movements.some((m) => m.accountId === ''));
         }
         this.meterGroupData = this.updateMeterGroupData();
     }
@@ -134,7 +154,19 @@ export class TransactionsComponent implements OnInit {
     }
 
     deleteTransaction(id: string) {
-        throw new Error('Method not implemented.');
+        console.log('deleteTransaction', id);
+        this.confirmationService.confirm({
+            message: 'Are you sure that you want to delete transaction?',
+            accept: async () => {
+                try {
+                    await this.storage.deleteTransaction(id);
+                    await this.updateData();
+                    console.log('Transaction deleted');
+                } catch (e) {
+                    console.error(e);
+                }
+            },
+        });
     }
 
     addTransaction() {
@@ -169,10 +201,10 @@ export class TransactionsComponent implements OnInit {
         let totalSum = 0.0;
         const accountSummaries = this.transactions.flatMap((t) => {
             return t.movements
-                .filter((m) => m.account.id !== this.selectedAccount?.id)
+                .filter((m) => m.accountId !== this.selectedAccount?.id)
                 .map((m) => ({
-                    account: m.account.name,
-                    amount: m.amount,
+                    account: this.fullUser?.accountMap.get(m.accountId || '')?.name,
+                    amount: Math.abs(m.amount),
                 }));
         });
         for (const item of accountSummaries) {
@@ -192,7 +224,7 @@ export class TransactionsComponent implements OnInit {
             totalSum += item.amount;
         }
 
-        return res.filter((m) => m.value !== 0).map((m) => ({ ...m, value: (m?.value ?? 0 / totalSum) * 100 }));
+        return res.filter((m) => m.value !== 0).map((m) => ({ ...m, value: (100 * (m.value ?? 0)) / totalSum }));
     }
 
     onAccountChange() {
@@ -247,10 +279,10 @@ export class TransactionsComponent implements OnInit {
 
     counterAccounts(t: Transaction): string {
         if (!this.selectedAccount) {
-            return t.movements.map((m) => m.account.name).join(', ');
+            return t.movements.map((m) => this.fullUser?.accountMap.get(m.accountId || '')?.name).join(', ');
         }
 
-        const accounts = getCounterAccounts(t, this.selectedAccount).map((a) => a.name);
+        const accounts = getCounterAccounts(t, this.selectedAccount.id).map((id) => this.fullUser?.accountMap.get(id)?.name);
         return accounts.join(', ');
     }
 
@@ -259,17 +291,21 @@ export class TransactionsComponent implements OnInit {
             return t.movements[0];
         }
 
-        return getAccountMovement(t, this.selectedAccount);
+        return getAccountMovement(t, this.selectedAccount.id);
     }
 
-    onSaveModal() {
+    async onSaveModal() {
         console.log('onSaveModal');
         this.modalVisible = false;
 
+        if (!this.selected) {
+            throw new Error('Transaction is not selected');
+        }
+
         console.log('onSaveModal', this.selected);
-        // const created = await this.storage.upsertCurrency(this.selected);
-        // console.log('Currency stored', created);
-        // await this.updateCurrencies();
+        const created = await this.storage.upsertTransaction(this.selected);
+        console.log('Transaction stored', created);
+        await this.updateData;
     }
 
     onCloseModal() {

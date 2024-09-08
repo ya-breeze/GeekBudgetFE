@@ -9,9 +9,8 @@ import {
     Currency,
     AccountNoID,
     CurrencyNoID,
-    TransactionNoID as NetworkTransactionNoId,
-    Transaction as NetworkTransaction,
-    UnprocessedTransaction as NetworkUnprocessedTransaction,
+    Transaction,
+    UnprocessedTransaction,
     TransactionsService,
     BankImportersService,
     BankImporter,
@@ -22,7 +21,6 @@ import {
 } from './client';
 import { Injectable } from '@angular/core';
 import { FullUserInfo } from './models/fullUserInfo';
-import { Transaction, TransactionNoId, UnprocessedTransaction } from './utils/utils';
 
 @Injectable({
     providedIn: 'root',
@@ -33,8 +31,8 @@ export class StorageService {
     private accountsPromise: Promise<Account[]> | undefined;
     private userPromise: Promise<User> | undefined;
     private currenciesPromise: Promise<Currency[]> | undefined;
-    private unknownAccount: Account;
-    private unknownCurrency: Currency;
+    public unknownAccount: Account;
+    public unknownCurrency: Currency;
 
     constructor(
         protected authService: AuthService,
@@ -96,19 +94,6 @@ export class StorageService {
         this.userPromise = firstValueFrom(this.userService.getUser());
 
         return this.userPromise;
-    }
-
-    async getCurrencies(): Promise<Currency[]> {
-        if (this.currenciesPromise) {
-            return this.currenciesPromise;
-        }
-
-        const token = await this.fetchToken();
-
-        this.currenciesService.configuration.credentials['BearerAuth'] = token;
-        this.currenciesPromise = firstValueFrom(this.currenciesService.getCurrencies());
-
-        return this.currenciesPromise;
     }
 
     //#region Accounts
@@ -177,6 +162,19 @@ export class StorageService {
     //#endregion Accounts
 
     //#region Currencies
+    async getCurrencies(): Promise<Currency[]> {
+        if (this.currenciesPromise) {
+            return this.currenciesPromise;
+        }
+
+        const token = await this.fetchToken();
+
+        this.currenciesService.configuration.credentials['BearerAuth'] = token;
+        this.currenciesPromise = firstValueFrom(this.currenciesService.getCurrencies());
+
+        return this.currenciesPromise;
+    }
+
     upsertCurrency(currency: Currency | undefined) {
         if (!currency) {
             throw new Error('Currency is undefined');
@@ -230,50 +228,83 @@ export class StorageService {
         console.log('enter getTransactions()');
         const token = await this.fetchToken();
 
-        const fullUserInfo = await this.getFullUser();
-
         this.transactionsService.configuration.credentials['BearerAuth'] = token;
-        const transactions = (
-            await firstValueFrom(
-                this.transactionsService.getTransactions(undefined, undefined, undefined, dateFrom?.toISOString(), dateTo?.toISOString())
-            )
-        ).map((t: NetworkTransaction) => {
-            return this.networkTransactionToTransaction(t, fullUserInfo);
-        });
+        const transactions = await firstValueFrom(
+            this.transactionsService.getTransactions(undefined, undefined, undefined, dateFrom?.toISOString(), dateTo?.toISOString())
+        );
 
-        transactions.sort((a, b) => {
-            return b.date.getTime() - a.date.getTime();
-        });
+        // transactions.sort((a, b) => {
+        //     return b.date.getTime() - a.date.getTime();
+        // });
 
         console.log('returning transactions');
         return transactions;
     }
 
-    networkTransactionToTransaction(t: NetworkTransaction, fullUserInfo: FullUserInfo): Transaction {
-        return {
-            ...t,
-            date: new Date(t.date),
-            movements: t.movements.map((m) => {
-                return {
-                    amount: m.amount,
-                    currency: (fullUserInfo.currencies.find((c) => c.id === m.currencyId) as Currency) || this.unknownCurrency,
-                    account: (fullUserInfo.accounts.find((a) => a.id === m.accountId) as Account) || this.unknownAccount,
-                };
-            }),
-        };
+    async upsertTransaction(t: Transaction): Promise<Transaction> {
+        console.log('upsertTransaction', t);
+        if (!t) {
+            throw new Error('Transaction is undefined');
+        }
+
+        const token = await this.fetchToken();
+        this.transactionsService.configuration.credentials['BearerAuth'] = token;
+
+        const { id, ...rest } = t;
+        if (id) {
+            const res = await firstValueFrom(this.transactionsService.updateTransaction(t.id, rest));
+
+            return res;
+        }
+
+        const res = await firstValueFrom(this.transactionsService.createTransaction(rest));
+        return res;
     }
-    networkTransactionNoIdToTransactionNoId(t: NetworkTransactionNoId, fullUserInfo: FullUserInfo): TransactionNoId {
-        return {
-            ...t,
-            date: new Date(t.date),
-            movements: t.movements.map((m) => {
-                return {
-                    amount: m.amount,
-                    currency: (fullUserInfo.currencies.find((c) => c.id === m.currencyId) as Currency) || this.unknownCurrency,
-                    account: (fullUserInfo.accounts.find((a) => a.id === m.accountId) as Account) || this.unknownAccount,
-                };
-            }),
-        };
+
+    // networkTransactionToTransaction(t: NetworkTransaction, fullUserInfo: FullUserInfo): Transaction {
+    //     return {
+    //         ...t,
+    //         date: new Date(t.date),
+    //         movements: t.movements.map((m) => {
+    //             return {
+    //                 amount: m.amount,
+    //                 currency: (fullUserInfo.currencies.find((c) => c.id === m.currencyId) as Currency) || this.unknownCurrency,
+    //                 account: (fullUserInfo.accounts.find((a) => a.id === m.accountId) as Account) || this.unknownAccount,
+    //             };
+    //         }),
+    //     };
+    // }
+    // transactionToNetworkTransaction(t: Transaction): NetworkTransaction {
+    //     return {
+    //         ...t,
+    //         date: t.date.toISOString(),
+    //         movements: t.movements.map((m) => {
+    //             return {
+    //                 amount: m.amount,
+    //                 currencyId: m.currency ? m.currency.id : (this.unknownCurrency as Currency).id,
+    //                 accountId: m.account ? m.account.id : (this.unknownAccount as Account).id,
+    //             };
+    //         }),
+    //     };
+    // }
+
+    // networkTransactionNoIdToTransactionNoId(t: NetworkTransactionNoId, fullUserInfo: FullUserInfo): TransactionNoId {
+    //     return {
+    //         ...t,
+    //         date: new Date(t.date),
+    //         movements: t.movements.map((m) => {
+    //             return {
+    //                 amount: m.amount,
+    //                 currency: (fullUserInfo.currencies.find((c) => c.id === m.currencyId) as Currency) || this.unknownCurrency,
+    //                 account: (fullUserInfo.accounts.find((a) => a.id === m.accountId) as Account) || this.unknownAccount,
+    //             };
+    //         }),
+    //     };
+    // }
+
+    deleteTransaction(id: string) {
+        console.log('deleteTransaction', id);
+        throw new Error('Method not implemented.');
     }
     //#endregion Transactions
 
@@ -309,6 +340,10 @@ export class StorageService {
         }
         throw new Error('Method not implemented.');
     }
+    async deleteBankImporter(id: string) {
+        console.log('deleteBankImporter', id);
+        throw new Error('Method not implemented.');
+    }
     //#endregion BankImporters
 
     //#region UnprocessedTransactions
@@ -316,26 +351,17 @@ export class StorageService {
         console.log('enter getUnprocessedTransactions()');
         const token = await this.fetchToken();
 
-        const fullUserInfo = await this.getFullUser();
+        this.unprocessedTransactionsService.configuration.credentials['BearerAuth'] = token;
+        return await firstValueFrom(this.unprocessedTransactionsService.getUnprocessedTransactions());
+    }
+
+    async convertUnprocessedTransaction(): Promise<Transaction> {
+        console.log('enter convertUnprocessedTransaction()');
+        const token = await this.fetchToken();
 
         this.unprocessedTransactionsService.configuration.credentials['BearerAuth'] = token;
-        return (await firstValueFrom(this.unprocessedTransactionsService.getUnprocessedTransactions())).map(
-            (t: NetworkUnprocessedTransaction) => {
-                return {
-                    transaction: this.networkTransactionToTransaction(t.transaction, fullUserInfo),
-                    matched: t.matched.map((m) => {
-                        return {
-                            matcherId: m.matcherId,
-                            transaction: this.networkTransactionNoIdToTransactionNoId(m.transaction, fullUserInfo),
-                        };
-                    }),
-                    duplicates: [],
-                    // t.duplicates.map((d) => {
-                    //     return this.networkTransactionToTransaction(d, fullUserInfo);
-                    // }),
-                };
-            }
-        );
+        // this.unprocessedTransactionsService.convertUnprocessedTransaction();
+        return {} as Transaction;
     }
     //#endregion UnprocessedTransactions
 
