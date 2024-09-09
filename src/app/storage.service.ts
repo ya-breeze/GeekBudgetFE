@@ -261,47 +261,6 @@ export class StorageService {
         return res;
     }
 
-    // networkTransactionToTransaction(t: NetworkTransaction, fullUserInfo: FullUserInfo): Transaction {
-    //     return {
-    //         ...t,
-    //         date: new Date(t.date),
-    //         movements: t.movements.map((m) => {
-    //             return {
-    //                 amount: m.amount,
-    //                 currency: (fullUserInfo.currencies.find((c) => c.id === m.currencyId) as Currency) || this.unknownCurrency,
-    //                 account: (fullUserInfo.accounts.find((a) => a.id === m.accountId) as Account) || this.unknownAccount,
-    //             };
-    //         }),
-    //     };
-    // }
-    // transactionToNetworkTransaction(t: Transaction): NetworkTransaction {
-    //     return {
-    //         ...t,
-    //         date: t.date.toISOString(),
-    //         movements: t.movements.map((m) => {
-    //             return {
-    //                 amount: m.amount,
-    //                 currencyId: m.currency ? m.currency.id : (this.unknownCurrency as Currency).id,
-    //                 accountId: m.account ? m.account.id : (this.unknownAccount as Account).id,
-    //             };
-    //         }),
-    //     };
-    // }
-
-    // networkTransactionNoIdToTransactionNoId(t: NetworkTransactionNoId, fullUserInfo: FullUserInfo): TransactionNoId {
-    //     return {
-    //         ...t,
-    //         date: new Date(t.date),
-    //         movements: t.movements.map((m) => {
-    //             return {
-    //                 amount: m.amount,
-    //                 currency: (fullUserInfo.currencies.find((c) => c.id === m.currencyId) as Currency) || this.unknownCurrency,
-    //                 account: (fullUserInfo.accounts.find((a) => a.id === m.accountId) as Account) || this.unknownAccount,
-    //             };
-    //         }),
-    //     };
-    // }
-
     deleteTransaction(id: string) {
         console.log('deleteTransaction', id);
         throw new Error('Method not implemented.');
@@ -392,6 +351,12 @@ export class StorageService {
 
         const res = await firstValueFrom(this.matchersService.createMatcher(rest));
         return res;
+    }
+
+    async deleteMatcher(id: string) {
+        const token = await this.fetchToken();
+        this.matchersService.configuration.credentials['BearerAuth'] = token;
+        await firstValueFrom(this.matchersService.deleteMatcher(id));
     }
     //#endregion Matchers
 }

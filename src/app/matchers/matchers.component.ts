@@ -66,7 +66,7 @@ export class MatchersComponent implements OnInit {
             message: 'Are you sure that you want to delete matcher?',
             accept: async () => {
                 try {
-                    // await this.storage.deleteMatcher(id);
+                    await this.storage.deleteMatcher(id);
                     await this.updateData();
                     console.log('Matcher deleted');
                 } catch (e) {
