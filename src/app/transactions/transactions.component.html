@@ -91,10 +91,10 @@
                 {{ counterAccounts(product) }}
             </td>
             <td>
+                {{ product.description }}
                 @for (tag of product.tags; track $index) {
                 <p-tag value="{{ tag }}" />
                 }
-                {{ product.description }}
             </td>
             <td style="min-width: 10rem">
                 {{ accountMovement(product).amount | number : "1.2-2" }}

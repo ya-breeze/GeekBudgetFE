@@ -1,0 +1,65 @@
+@if (matcher && accounts ) {
+<form>
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" [(ngModel)]="matcher.name" name="name" required />
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Output description</label>
+        <input type="text" class="form-control" id="description" [(ngModel)]="matcher.outputDescription" name="description" required />
+    </div>
+    <div class="mb-3">
+        <label for="account" class="form-label">Output account</label>
+        <p-dropdown
+            id="account"
+            name="account"
+            [options]="accounts"
+            [(ngModel)]="matcher.outputAccountId"
+            [checkmark]="true"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select an account"
+            [filter]="true"
+            filterBy="name"
+        />
+    </div>
+
+    <div class="mb-3">
+        <label for="descriptionRegexp" class="form-label">Description regexp</label>
+        <input
+            type="text"
+            class="form-control"
+            id="descriptionRegexp"
+            [(ngModel)]="matcher.descriptionRegExp"
+            name="descriptionRegexp"
+            required
+        />
+    </div>
+    <div class="mb-3">
+        <label for="currencyRegexp" class="form-label">Currency regexp</label>
+        <input type="text" class="form-control" id="currencyRegexp" [(ngModel)]="matcher.currencyRegExp" name="currencyRegexp" required />
+    </div>
+    <div class="mb-3">
+        <label for="partnerNameRegexp" class="form-label">Partner name regexp</label>
+        <input
+            type="text"
+            class="form-control"
+            id="partnerNameRegexp"
+            [(ngModel)]="matcher.partnerNameRegExp"
+            name="partnerNameRegexp"
+            required
+        />
+    </div>
+    <div class="mb-3">
+        <label for="partnerAccount" class="form-label">Partner account</label>
+        <input
+            type="text"
+            class="form-control"
+            id="partnerAccount"
+            [(ngModel)]="matcher.partnerAccountNumber"
+            name="partnerAccount"
+            required
+        />
+    </div>
+</form>
+} @else { Loading... }

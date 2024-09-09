@@ -1,1 +1,63 @@
-<p>matchers works!</p>
+<h3>Matchers</h3>
+@if (matchers && fullUser) {
+<p-table
+    [value]="matchers"
+    styleClass="p-datatable-striped"
+    selectionMode="single"
+    [(selection)]="selected"
+    (onRowSelect)="onRowSelect($event)"
+    [tableStyle]="{ 'min-width': '80%' }"
+>
+    <ng-template pTemplate="header">
+        <tr>
+            <th style="text-align: right; text-align: center">Name</th>
+            <th style="text-align: right; text-align: center">Output account</th>
+            <th style="padding-right: 1rem">
+                <div style="display: flex">
+                    <button
+                        (click)="addMatcher()"
+                        class="btn icon add-matcher"
+                        data-toggle="tooltip"
+                        title="Add matcher"
+                        style="margin-left: auto"
+                    >
+                        <i class="bi-plus-circle add-matcher"></i>
+                    </button>
+                </div>
+            </th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+        <tr [pSelectableRow]="product">
+            <td style="text-align: right; text-align: center">{{ product.name }}</td>
+            <td>{{ fullUser.accountMap.get(product.outputAccountId)?.name }}</td>
+            <td style="padding-right: 1rem">
+                <div style="display: flex">
+                    <button
+                        (click)="deleteMatcher(product.id)"
+                        class="btn icon delete-matcher"
+                        data-toggle="tooltip"
+                        title="Delete matcher"
+                        style="margin-left: auto"
+                    >
+                        <i class="bi-x-circle delete-matcher"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<p-dialog header="Matcher" [modal]="true" [(visible)]="modalVisible" [style]="{ width: '50rem', padding: '2rem' }">
+    <div>
+        <app-matcher [matcher]="selected" [accounts]="fullUser.accounts"></app-matcher>
+        <div class="flex">
+            <p-button label="Cancel" severity="secondary" (onClick)="onCloseModal()" />
+            <p-button label="Save" (onClick)="onSaveModal()" />
+        </div>
+    </div>
+
+    <div class="div" style="min-height: 250px"></div>
+</p-dialog>
+<p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+} @else { Loading... }

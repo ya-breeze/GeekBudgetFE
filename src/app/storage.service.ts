@@ -373,5 +373,25 @@ export class StorageService {
         this.matchersService.configuration.credentials['BearerAuth'] = token;
         return firstValueFrom(this.matchersService.getMatchers());
     }
+
+    async upsertMatcher(m: Matcher) {
+        console.log('upsertMatcher', m);
+        if (!m) {
+            throw new Error('Matcher is undefined');
+        }
+
+        const token = await this.fetchToken();
+        this.matchersService.configuration.credentials['BearerAuth'] = token;
+
+        const { id, ...rest } = m;
+        if (id) {
+            const res = await firstValueFrom(this.matchersService.updateMatcher(m.id, rest));
+
+            return res;
+        }
+
+        const res = await firstValueFrom(this.matchersService.createMatcher(rest));
+        return res;
+    }
     //#endregion Matchers
 }
