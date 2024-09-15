@@ -25,6 +25,9 @@ export class BankImportersComponent implements OnInit {
     bankImporters: BankImporter[] | undefined;
     selected: BankImporter | undefined;
     modalVisible = false;
+    modalUploadVisible = false;
+    fileSelected: File | undefined;
+    fileToUpload: File | null = null;
 
     constructor(
         private route: ActivatedRoute,
@@ -98,18 +101,48 @@ export class BankImportersComponent implements OnInit {
         }
 
         console.log('onFetch', bi.name);
-        this.messageService.add({
-            severity: 'info',
-            summary: `Importing transactions...`,
-            // detail: `Importer: ${bi.name}
-            // Account: ${bi.accountId}`,
-        });
-        const res = await this.storage.bankImporterFetch(id);
-        this.messageService.add({
-            severity: 'info',
-            summary: `Import finished with ${res.status}`,
-            detail: res.description,
-            life: 10000,
-        });
+        this.selected = bi;
+        if (bi.type === 'fio') {
+            console.log('Fio');
+            this.messageService.add({
+                severity: 'info',
+                summary: `Importing transactions...`,
+            });
+            const res = await this.storage.bankImporterFetch(id);
+            this.messageService.add({
+                severity: 'info',
+                summary: `Import finished with ${res.status}`,
+                detail: res.description,
+                life: 10000,
+            });
+        } else if (bi.type === 'revolut') {
+            console.log('Revolut');
+            this.fileSelected = undefined;
+            this.modalUploadVisible = true;
+        }
+    }
+
+    handleFileInput(target: any) {
+        this.fileToUpload = target.files[0];
+        console.log('handleFileInput', this.fileToUpload);
+    }
+
+    async onSaveModalUpload() {
+        console.log('onSaveModalUpload', this.fileSelected, this.selected);
+        if (this.fileToUpload && this.selected) {
+            this.modalUploadVisible = false;
+
+            const res = await this.storage.uploadTransactions(this.fileToUpload, this.selected?.id);
+            this.messageService.add({
+                severity: 'info',
+                summary: `Import finished with ${res.status}`,
+                detail: res.description,
+                life: 10000,
+            });
+        }
+    }
+
+    onCloseModalUpload() {
+        this.modalUploadVisible = false;
     }
 }

@@ -72,4 +72,14 @@
     </div>
 </p-dialog>
 <p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+
+<p-dialog header="Upload file" [modal]="true" [(visible)]="modalUploadVisible" [style]="{ width: '50rem', padding: '2rem' }">
+    <input name="filename" [(ngModel)]="fileSelected" ngDefaultControl type="file" (change)="handleFileInput($event.target)" />
+    <div style="display: flex">
+        <span style="margin-left: auto"></span>
+        <p-button label="Cancel" severity="secondary" (onClick)="onCloseModalUpload()" />
+        <p-button label="Save" (onClick)="onSaveModalUpload()" />
+    </div>
+</p-dialog>
+
 } @else { Loading... }

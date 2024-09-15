@@ -9,12 +9,15 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { BankAccountInfoBalancesInner } from './bankAccountInfoBalancesInner';
 
 
 export interface BankAccountInfo { 
     accountId?: string;
     bankId?: string;
-    openingBalance?: number;
-    closingBalance?: number;
+    /**
+     * List of balances for this account. It\'s an array since one account could hold multiple currencies, for example, cash account could hold EUR, USD and CZK. Or one bank account could hold multiple currencies.
+     */
+    balances?: Array<BankAccountInfoBalancesInner>;
 }
 

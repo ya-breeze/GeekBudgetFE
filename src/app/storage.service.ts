@@ -303,6 +303,26 @@ export class StorageService {
         console.log('deleteBankImporter', id);
         throw new Error('Method not implemented.');
     }
+
+    async uploadTransactions(file: File, bankImporterId: string): Promise<ImportResult> {
+        console.log('uploadTransactions', file, bankImporterId);
+        const token = await this.fetchToken();
+        this.bankImportersService.configuration.credentials['BearerAuth'] = token;
+
+        const formData: FormData = new FormData();
+        formData.append('fileKey', file, file.name);
+
+        // get file extension
+        const fileExtension = file.name.split('.').pop();
+        if (!fileExtension) {
+            throw new Error('File has no extension');
+        }
+        if (fileExtension !== 'xlsx' && fileExtension !== 'csv') {
+            throw new Error('Unknown file extension: ' + fileExtension);
+        }
+
+        return firstValueFrom(this.bankImportersService.uploadBankImporter(bankImporterId, fileExtension, file));
+    }
     //#endregion BankImporters
 
     //#region UnprocessedTransactions

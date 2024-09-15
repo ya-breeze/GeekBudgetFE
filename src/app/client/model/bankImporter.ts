@@ -18,9 +18,13 @@ export interface BankImporter {
     name: string;
     description?: string;
     /**
-     * ID of account which is used to store transactions from this bank importer
+     * ID of account which is used to for movements from this bank importer
      */
     accountId: string;
+    /**
+     * ID of account which is used for fee movements from this bank importer
+     */
+    feeAccountId?: string;
     /**
      * Stores extra data about bank importer. For example could hold \"bank account number\" to be able to distinguish between different bank accounts, or it could hold token for bank API
      */
