@@ -1,1 +1,12 @@
 <h2>Settings</h2>
+
+<p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+
+<div class="row">
+    <button class="btn btn-primary" (click)="onExport()">Export</button>
+</div>
+
+<div class="row">
+    <input name="filename" [(ngModel)]="fileSelected" ngDefaultControl type="file" />
+    <button class="btn btn-primary" (click)="onImport()">Import</button>
+</div>

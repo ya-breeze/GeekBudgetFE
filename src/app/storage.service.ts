@@ -18,9 +18,13 @@ import {
     UnprocessedTransactionsService,
     MatchersService,
     Matcher,
+    ExportService,
+    ImportService,
+    WholeUserData,
 } from './client';
 import { Injectable } from '@angular/core';
 import { FullUserInfo } from './models/fullUserInfo';
+import { saveAs } from 'file-saver';
 
 @Injectable({
     providedIn: 'root',
@@ -42,7 +46,9 @@ export class StorageService {
         protected transactionsService: TransactionsService,
         protected bankImportersService: BankImportersService,
         protected unprocessedTransactionsService: UnprocessedTransactionsService,
-        protected matchersService: MatchersService
+        protected matchersService: MatchersService,
+        protected exportService: ExportService,
+        protected importService: ImportService
     ) {
         this.unknownAccount = {
             id: '',
@@ -379,4 +385,36 @@ export class StorageService {
         await firstValueFrom(this.matchersService.deleteMatcher(id));
     }
     //#endregion Matchers
+
+    //#region Files
+
+    async export() {
+        console.log('exporting all data');
+        const token = await this.fetchToken();
+        this.exportService.configuration.credentials['BearerAuth'] = token;
+        const data = await firstValueFrom(this.exportService._export());
+        this.saveFile(JSON.stringify(data), 'export.json', 'application/json');
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    saveFile(data: any, fileName: string, fileType: string) {
+        const blob = new Blob([data], { type: fileType });
+        saveAs(blob, fileName);
+    }
+
+    async import(file: File | undefined): Promise<ImportResult> {
+        if (!file) {
+            throw new Error('File is undefined');
+        }
+
+        console.log('importing file', file);
+        const data: WholeUserData = {};
+
+        const token = await this.fetchToken();
+        this.importService.configuration.credentials['BearerAuth'] = token;
+
+        return firstValueFrom(this.importService._import(data));
+    }
+
+    //#endregion Files
 }
